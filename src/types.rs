@@ -80,9 +80,6 @@ impl LocalAccount {
         let auth_key = key.authentication_key();
         let address = auth_key.derived_address();
 
-        println!("--- gen(): auth_key: {:x?}", auth_key);
-        println!("--- gen(): address: {:?}", address);
-
         Self::new(address, key, 0)
     }
 

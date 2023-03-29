@@ -38,4 +38,8 @@ pub mod rest_client {
 
 pub mod transaction_builder;
 
+pub mod transfer_coin;
+
+pub mod txs_args;
+
 pub mod types;

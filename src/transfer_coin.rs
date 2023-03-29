@@ -1,12 +1,9 @@
-// Copyright © Aptos Foundation
-// SPDX-License-Identifier: Apache-2.0
-
-use anyhow::{Context, Result};
-use txs::{
+use crate::{
     coin_client::CoinClient,
     rest_client::{Client, FaucetClient},
     types::LocalAccount,
 };
+use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 use url::Url;
@@ -33,8 +30,7 @@ static FAUCET_URL: Lazy<Url> = Lazy::new(|| {
 });
 // <:!:section_1c
 
-#[tokio::main]
-async fn main() -> Result<()> {
+pub async fn transfer_coin() -> Result<()> {
     // :!:>section_1a
     let rest_client = Client::new(NODE_URL.clone());
     let faucet_client = FaucetClient::new(FAUCET_URL.clone(), NODE_URL.clone()); // <:!:section_1a
