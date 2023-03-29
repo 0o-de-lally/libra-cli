@@ -1,0 +1,25 @@
+[package]
+name = "txs"
+description = ""
+version = "0.0.1"
+edition = '2021'
+
+[dependencies]
+anyhow = "1.0.62"
+aptos-cached-packages = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "e65e1413e9a8ede6dfd1207e4b2258f3a72cabfa" }
+aptos-crypto = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "e65e1413e9a8ede6dfd1207e4b2258f3a72cabfa" }
+aptos-global-constants = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "e65e1413e9a8ede6dfd1207e4b2258f3a72cabfa" }
+aptos-rest-client = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "e65e1413e9a8ede6dfd1207e4b2258f3a72cabfa" }
+aptos-types = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "e65e1413e9a8ede6dfd1207e4b2258f3a72cabfa" }
+bcs = { git = "https://github.com/aptos-labs/bcs.git", rev = "d31fab9d81748e2594be5cd5cdf845786a30562d" }
+ed25519-dalek-bip32 = "0.2.0"
+move-core-types = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "e65e1413e9a8ede6dfd1207e4b2258f3a72cabfa" }
+rand_core = "0.5.1"
+serde = { version = "1.0.137", features = ["derive", "rc"] }
+tiny-bip39 = "0.8.2"
+
+[dev-dependencies]
+once_cell = "1.10.0"
+rand = "0.7.3"
+tokio = { version = "1.21.0", features = ["full"] }
+url = { version = "2.2.2", features = ["serde"] }
