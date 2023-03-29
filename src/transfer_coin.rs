@@ -1,7 +1,8 @@
 use crate::{
     coin_client::CoinClient,
+    crypto::ed25519::Ed25519PrivateKey,
     rest_client::{Client, FaucetClient},
-    types::LocalAccount,
+    types::{AccountKey, LocalAccount},
 };
 use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
@@ -14,7 +15,7 @@ static NODE_URL: Lazy<Url> = Lazy::new(|| {
         std::env::var("APTOS_NODE_URL")
             .as_ref()
             .map(|s| s.as_str())
-            .unwrap_or("https://fullnode.devnet.aptoslabs.com"),
+            .unwrap_or("http://0.0.0.0:8080"),
     )
     .unwrap()
 });
@@ -24,7 +25,7 @@ static FAUCET_URL: Lazy<Url> = Lazy::new(|| {
         std::env::var("APTOS_FAUCET_URL")
             .as_ref()
             .map(|s| s.as_str())
-            .unwrap_or("https://faucet.devnet.aptoslabs.com"),
+            .unwrap_or("http://0.0.0.0:8081"),
     )
     .unwrap()
 });
@@ -40,8 +41,25 @@ pub async fn transfer_coin() -> Result<()> {
 
     // Create two accounts locally, Alice and Bob.
     // :!:>section_2
-    let mut alice = LocalAccount::generate(&mut rand::rngs::OsRng);
-    let bob = LocalAccount::generate(&mut rand::rngs::OsRng); // <:!:section_2
+    // let mut alice = LocalAccount::generate(&mut rand::rngs::OsRng); // Aptos Alice
+    // 0L Alice - from pri key
+    let arr: [u8;32] = [196, 63, 87, 153, 70, 68, 235, 218, 30, 171, 254, 191, 132, 222, 247, 63, 189, 29, 60, 228, 66, 169, 210, 178, 244, 203, 159, 77, 167, 185, 144, 140];
+    let pri = Ed25519PrivateKey::try_from(arr.as_ref()).unwrap();
+    println!("--- tc::main: pri: {:x?}", pri.to_bytes());
+    println!("--- tc::main: pri: {:?}", pri.to_bytes());
+    let acckey = AccountKey::from_private_key(pri);
+    println!("--- tc::main: pub: {:x?}", acckey.public_key());
+    println!("--- tc::main: aut: {:x?}", acckey.authentication_key());
+    println!("--- tc::main: add: {:x?}", acckey.authentication_key().derived_address());
+    let mut alice = LocalAccount::new(acckey.authentication_key().derived_address(), acckey, 0);
+        // ol alice addr 0xfda03992f666875ddf854193fccd3e62ea111d066029490dd37c891ed9c3f880
+
+    // let bob = LocalAccount::generate(&mut rand::rngs::OsRng); // <:!:section_2
+    // 0L: Using bob with fix address instead of random
+    let derive_path = "m/44'/637'/0'/0'/0'";
+    let mnemonic_phrase =
+        "circle ship inner pact earn inflict valve retire mechanic talk mouse outer display snack dose ahead orient tooth shrimp achieve pink slam kingdom rifle";
+    let bob = LocalAccount::from_derive_path(derive_path, mnemonic_phrase, 0).unwrap();
 
     // Print account addresses.
     println!("\n=== Addresses ===");

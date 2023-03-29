@@ -5,7 +5,7 @@ use clap::Parser;
 #[derive(Clone, Debug, Parser)]
 #[clap(name = "Txs", author, version)]
 pub struct TxsArgs {
-    /// Demo transfer coin transaction
+    /// Demo transfer coin transaction for local testnet
     #[clap(long)]
     demo_tx: bool,
 
