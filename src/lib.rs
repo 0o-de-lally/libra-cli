@@ -23,6 +23,7 @@
 pub use bcs;
 
 pub mod coin_client;
+pub mod config;
 
 pub mod crypto {
     pub use aptos_crypto::*;

@@ -41,7 +41,6 @@ impl<'a> CoinClient<'a> {
     ) -> Result<PendingTransaction> {
         let options = options.unwrap_or_default();
 
-        // :!:>section_1
         let chain_id = self
             .api_client
             .get_index()
@@ -77,7 +76,6 @@ impl<'a> CoinClient<'a> {
             .await
             .context("Failed to submit transfer transaction")?
             .into_inner())
-        // <:!:section_1
     }
 
     pub async fn get_account_balance(&self, account: &AccountAddress) -> Result<u64> {
