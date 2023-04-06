@@ -2,18 +2,19 @@
 // Parts of the project are originally copyright © Meta Platforms, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
+pub use aptos_cached_packages::aptos_stdlib;
+use aptos_global_constants::{GAS_UNIT_PRICE, MAX_GAS_AMOUNT};
+use aptos_sdk::{
+    bcs,
+    crypto::{ed25519::Ed25519PublicKey, HashValue},
     move_types::account_address::AccountAddress,
     types::{
         chain_id::ChainId,
-        transaction::{authenticator::AuthenticationKey, RawTransaction, TransactionPayload},
+        transaction::{
+            authenticator::AuthenticationKey, authenticator::AuthenticationKeyPreimage,
+            EntryFunction, ModuleBundle, RawTransaction, Script, TransactionPayload,
+        },
     },
-};
-pub use aptos_cached_packages::aptos_stdlib;
-use aptos_crypto::{ed25519::Ed25519PublicKey, HashValue};
-use aptos_global_constants::{GAS_UNIT_PRICE, MAX_GAS_AMOUNT};
-use aptos_types::transaction::{
-    authenticator::AuthenticationKeyPreimage, EntryFunction, ModuleBundle, Script,
 };
 
 pub struct TransactionBuilder {

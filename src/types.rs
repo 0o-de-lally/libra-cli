@@ -2,7 +2,9 @@
 // Parts of the project are originally copyright © Meta Platforms, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
+use anyhow::Result;
+pub use aptos_sdk::types::*;
+use aptos_sdk::{
     crypto::{
         ed25519::{Ed25519PrivateKey, Ed25519PublicKey},
         traits::Uniform,
@@ -10,12 +12,10 @@ use crate::{
     transaction_builder::TransactionBuilder,
     types::{
         account_address::AccountAddress,
+        event::EventKey,
         transaction::{authenticator::AuthenticationKey, RawTransaction, SignedTransaction},
     },
 };
-use anyhow::Result;
-use aptos_types::event::EventKey;
-pub use aptos_types::*;
 use bip39::{Language, Mnemonic, Seed};
 use ed25519_dalek_bip32::{DerivationPath, ExtendedSecretKey};
 use std::str::FromStr;
@@ -86,7 +86,10 @@ impl LocalAccount {
     pub fn sign_transaction(&self, txn: RawTransaction) -> SignedTransaction {
         println!("--- sign_transaction(): addr {:?}", txn.sender());
         println!("--- sign_transaction(): pub {:x?}", self.public_key());
-        println!("--- sign_transaction(): pri {:?}", self.private_key().to_bytes());
+        println!(
+            "--- sign_transaction(): pri {:?}",
+            self.private_key().to_bytes()
+        );
 
         txn.sign(self.private_key(), self.public_key().clone())
             .expect("Signing a txn can't fail")

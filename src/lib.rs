@@ -20,21 +20,15 @@
 //! todo(davidiw) bring back example using rest
 //!
 
-pub use bcs;
-
 pub mod coin_client;
 pub mod config;
 
 pub mod crypto {
-    pub use aptos_crypto::*;
-}
-
-pub mod move_types {
-    pub use move_core_types::*;
+    pub use aptos_sdk::crypto::*;
 }
 
 pub mod rest_client {
-    pub use aptos_rest_client::*;
+    pub use aptos_sdk::rest_client::*;
 }
 
 pub mod transaction_builder;
