@@ -8,11 +8,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Self {
-        Self::new_from("~/.0L/0L.toml")
-    }
-
-    fn new_from(toml_path: &str) -> Self {
+    fn from(toml_path: &str) -> Self {
         // First, we try to get the node url from environment variable
         let node_url = env::var("NODE_URL").unwrap_or_else(|_| {
             // If the environment variable is not set, we get the url from toml file
@@ -29,6 +25,12 @@ impl Config {
         let bytes = fs::read(path).context(format!("Failed to read 0L.toml file at {path}"))?;
         let str = String::from_utf8(bytes)?;
         toml_edit::de::from_str(&str).context("Unexpected content of 0L.toml")
+    }
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self::from("~/.0L/0L.toml")
     }
 }
 
@@ -50,7 +52,7 @@ impl Toml {
                     upstream_nodes
                         .choose(&mut rand::thread_rng())
                         .cloned()
-                        .unwrap_or(String::new())
+                        .unwrap_or_default()
                     //TODO: make sure that the selected url is alive
                 } else {
                     String::new()
@@ -69,7 +71,7 @@ mod tests {
 
     #[test]
     fn get_configs_correctly() {
-        let result = Config::new_from("tests/0L.toml");
+        let result = Config::from("tests/0L.toml");
         let upstream_nodes = [
             "http://localhost:8080/",
             "http://104.248.94.195:8080/",
@@ -78,12 +80,12 @@ mod tests {
         assert!(upstream_nodes.contains(&result.node_url.as_str()));
 
         env::set_var("NODE_URL", "test-url");
-        assert_eq!("test-url", Config::new().node_url);
+        assert_eq!("test-url", Config::default().node_url);
 
         env::remove_var("NODE_URL");
         assert_eq!(
             "http://0.0.0.0:8080/",
-            Config::new_from("invalid_toml_path").node_url
+            Config::from("invalid_toml_path").node_url
         );
     }
 }

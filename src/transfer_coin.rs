@@ -21,7 +21,7 @@ static FAUCET_URL: Lazy<Url> = Lazy::new(|| {
 });
 
 pub async fn transfer_coin() -> Result<()> {
-    let config = Config::new();
+    let config = Config::default();
     let node_url = Url::from_str(&config.node_url).unwrap();
     let rest_client = Client::new(node_url.clone());
     let faucet_client = FaucetClient::new(FAUCET_URL.clone(), node_url.clone());
