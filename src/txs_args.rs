@@ -1,5 +1,5 @@
 use crate::transfer_coin::transfer_coin;
-use anyhow::{Context};
+use anyhow::{Context, Result};
 use clap::Parser;
 
 #[derive(Clone, Debug, Parser)]
@@ -16,17 +16,18 @@ pub struct TxsArgs {
 
 impl TxsArgs {
     /// Runs Txs based on the given command line arguments
-    pub async fn run(self) {
+    pub async fn run(self) -> Result<()> {
         if self.demo_tx {
             println!("running demo tx ...");
-
-            let _result = transfer_coin().await.context("Failed to run transfer_coin tx");
-            return;
+            return transfer_coin()
+                .await
+                .context("Failed to run transfer_coin tx");
         }
 
         if self.info {
             println!("todo --- info");
-            return;
         }
+
+        Ok(())
     }
 }
