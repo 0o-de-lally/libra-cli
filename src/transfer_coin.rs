@@ -1,10 +1,11 @@
-use crate::{coin_client::CoinClient, config::Config};
-use anyhow::{Context, Result};
-use aptos_sdk::{
+use crate::{
+    coin_client::CoinClient,
+    config::Config,
     crypto::ed25519::Ed25519PrivateKey,
     rest_client::{Client, FaucetClient},
     types::{AccountKey, LocalAccount},
 };
+use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 use url::Url;
@@ -20,7 +21,7 @@ static FAUCET_URL: Lazy<Url> = Lazy::new(|| {
 });
 
 pub async fn transfer_coin() -> Result<()> {
-    let config = Config::default();
+    let config = Config::new();
     let node_url = Url::from_str(&config.node_url).unwrap();
     let rest_client = Client::new(node_url.clone());
     let faucet_client = FaucetClient::new(FAUCET_URL.clone(), node_url.clone());
