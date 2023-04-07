@@ -1,13 +1,8 @@
 // Copyright © Aptos Foundation
+// Parts of the project are originally copyright © Meta Platforms, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    bcs,
-    move_types::{
-        identifier::Identifier,
-        language_storage::{ModuleId, TypeTag},
-    },
-    rest_client::{Client as ApiClient, PendingTransaction},
+use super::{
     transaction_builder::TransactionBuilder,
     types::{
         account_address::AccountAddress,
@@ -17,19 +12,40 @@ use crate::{
     },
 };
 use anyhow::{Context, Result};
+use aptos_rest_client::{Client as ApiClient, FaucetClient, PendingTransaction};
+use bcs;
+use move_core_types::{
+    identifier::Identifier,
+    language_storage::{ModuleId, TypeTag},
+};
+use once_cell::sync::Lazy;
 use std::{
     str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
 };
+use url::Url;
 
-#[derive(Clone, Debug)]
-pub struct CoinClient<'a> {
-    api_client: &'a ApiClient,
+pub struct Client {
+    api_client: ApiClient,
+    faucet_client: FaucetClient,
 }
 
-impl<'a> CoinClient<'a> {
-    pub fn new(api_client: &'a ApiClient) -> Self {
-        Self { api_client }
+static FAUCET_URL: Lazy<Url> = Lazy::new(|| {
+    Url::from_str(
+        std::env::var("APTOS_FAUCET_URL")
+            .as_ref()
+            .map(|s| s.as_str())
+            .unwrap_or("http://0.0.0.0:8081"),
+    )
+    .unwrap()
+});
+
+impl Client {
+    pub fn new(url: &Url) -> Self {
+        Self {
+            api_client: ApiClient::new(url.clone()),
+            faucet_client: FaucetClient::new(FAUCET_URL.clone(), url.clone()),
+        }
     }
 
     pub async fn transfer(
@@ -85,6 +101,25 @@ impl<'a> CoinClient<'a> {
             .await
             .context("Failed to get account balance")?;
         Ok(response.inner().get())
+    }
+
+    pub async fn wait_for_transaction(
+        &self,
+        pending_transaction: &PendingTransaction,
+    ) -> Result<()> {
+        self.api_client
+            .wait_for_transaction(pending_transaction)
+            .await
+            .context("Failed when waiting for the transaction")
+            .map(|_| ())
+    }
+
+    pub async fn create_account_by_faucet(&self, address: AccountAddress) -> Result<()> {
+        self.faucet_client.create_account(address).await
+    }
+
+    pub async fn fund_by_faucet(&self, address: AccountAddress, amount: u64) -> Result<()> {
+        self.faucet_client.fund(address, amount).await
     }
 }
 

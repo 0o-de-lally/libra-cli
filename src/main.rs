@@ -1,8 +1,8 @@
 use anyhow::Result;
 use clap::Parser;
-use txs::txs_args::TxsArgs;
+use txs::txs_cli::TxsCli;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    TxsArgs::parse().run().await
+    TxsCli::parse().run().await
 }

@@ -1,20 +1,17 @@
 // Copyright © Aptos Foundation
-// Parts of the project are originally copyright © Meta Platforms, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    move_types::account_address::AccountAddress,
-    types::{
-        chain_id::ChainId,
-        transaction::{authenticator::AuthenticationKey, RawTransaction, TransactionPayload},
-    },
+use super::types::{
+    chain_id::ChainId,
+    transaction::{authenticator::AuthenticationKey, RawTransaction, TransactionPayload},
 };
-pub use aptos_cached_packages::aptos_stdlib;
+use aptos_cached_packages::aptos_stdlib;
 use aptos_crypto::{ed25519::Ed25519PublicKey, HashValue};
 use aptos_global_constants::{GAS_UNIT_PRICE, MAX_GAS_AMOUNT};
 use aptos_types::transaction::{
     authenticator::AuthenticationKeyPreimage, EntryFunction, ModuleBundle, Script,
 };
+use move_core_types::account_address::AccountAddress;
 
 pub struct TransactionBuilder {
     sender: Option<AccountAddress>,
