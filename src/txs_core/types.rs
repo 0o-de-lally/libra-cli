@@ -84,13 +84,6 @@ impl LocalAccount {
     }
 
     pub fn sign_transaction(&self, txn: RawTransaction) -> SignedTransaction {
-        println!("--- sign_transaction(): addr {:?}", txn.sender());
-        println!("--- sign_transaction(): pub {:x?}", self.public_key());
-        println!(
-            "--- sign_transaction(): pri {:?}",
-            self.private_key().to_bytes()
-        );
-
         txn.sign(self.private_key(), self.public_key().clone())
             .expect("Signing a txn can't fail")
             .into_inner()

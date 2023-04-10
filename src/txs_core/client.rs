@@ -3,6 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use super::{
+    config::Config,
+    constant::{
+        DEFAULT_ACCOUNT_RESOURCE_TYPE, DEFAULT_COIN_TYPE, DEFAULT_GAS_UNIT_PRICE,
+        DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS,
+    },
     transaction_builder::TransactionBuilder,
     types::{
         account_address::AccountAddress,
@@ -11,8 +16,8 @@ use super::{
         LocalAccount,
     },
 };
-use anyhow::{Context, Result};
-use aptos_rest_client::{Client as ApiClient, FaucetClient, PendingTransaction};
+use anyhow::{anyhow, Context, Result};
+use aptos_rest_client::{Account, Client as ApiClient, FaucetClient, PendingTransaction};
 use bcs;
 use move_core_types::{
     identifier::Identifier,
@@ -81,8 +86,6 @@ impl Client {
                 + options.timeout_secs,
             ChainId::new(chain_id),
         )
-        .sender(from_account.address())
-        .sequence_number(from_account.sequence_number())
         .max_gas_amount(options.max_gas_amount)
         .gas_unit_price(options.gas_unit_price);
         let signed_txn = from_account.sign_with_transaction_builder(transaction_builder);
@@ -101,6 +104,41 @@ impl Client {
             .await
             .context("Failed to get account balance")?;
         Ok(response.inner().get())
+    }
+
+    pub async fn get_sequence_number(&self, account: &AccountAddress) -> Result<u64> {
+        let response = self
+            .api_client
+            .get_account_resource(*account, DEFAULT_ACCOUNT_RESOURCE_TYPE)
+            .await
+            .context("Failed to get account resource")?;
+        if let Some(res) = response.inner() {
+            Ok(serde_json::from_value::<Account>(res.data.to_owned())?.sequence_number)
+        } else {
+            Err(anyhow!("No data returned for the sequence number"))
+        }
+    }
+
+    pub async fn get_account_resource(
+        &self,
+        account: &AccountAddress,
+        resource_type: Option<String>,
+    ) -> Result<String> {
+        let response = self
+            .api_client
+            .get_account_resource(
+                *account,
+                resource_type
+                    .as_deref()
+                    .unwrap_or(DEFAULT_ACCOUNT_RESOURCE_TYPE),
+            )
+            .await
+            .context("Failed to get account resource")?;
+        if let Some(res) = response.inner() {
+            Ok(format!("{:#}", res.data))
+        } else {
+            Err(anyhow!("No data returned for the account resource"))
+        }
     }
 
     pub async fn wait_for_transaction(
@@ -123,6 +161,14 @@ impl Client {
     }
 }
 
+impl Default for Client {
+    fn default() -> Self {
+        let config = Config::default();
+        let node_url = Url::from_str(&config.node_url).unwrap();
+        Client::new(&node_url)
+    }
+}
+
 pub struct TransferOptions<'a> {
     pub max_gas_amount: u64,
 
@@ -139,10 +185,21 @@ pub struct TransferOptions<'a> {
 impl<'a> Default for TransferOptions<'a> {
     fn default() -> Self {
         Self {
-            max_gas_amount: 5_000,
-            gas_unit_price: 100,
-            timeout_secs: 10,
-            coin_type: "0x1::aptos_coin::AptosCoin",
+            max_gas_amount: DEFAULT_MAX_GAS_AMOUNT,
+            gas_unit_price: DEFAULT_GAS_UNIT_PRICE,
+            timeout_secs: DEFAULT_TIMEOUT_SECS,
+            coin_type: DEFAULT_COIN_TYPE,
+        }
+    }
+}
+
+impl<'a> TransferOptions<'a> {
+    pub fn from_gas_unit_price(gas_unit_price: u64) -> Self {
+        Self {
+            max_gas_amount: DEFAULT_MAX_GAS_AMOUNT,
+            gas_unit_price,
+            timeout_secs: DEFAULT_TIMEOUT_SECS,
+            coin_type: DEFAULT_COIN_TYPE,
         }
     }
 }
