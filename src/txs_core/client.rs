@@ -4,24 +4,27 @@
 
 use super::{
     config::Config,
-    constant::{
-        DEFAULT_ACCOUNT_RESOURCE_TYPE, DEFAULT_COIN_TYPE, DEFAULT_GAS_UNIT_PRICE,
-        DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS,
-    },
+    constant::DEFAULT_ACCOUNT_RESOURCE_TYPE,
     transaction_builder::TransactionBuilder,
     types::{
         account_address::AccountAddress,
         chain_id::ChainId,
-        transaction::{EntryFunction, TransactionPayload},
-        LocalAccount,
+        transaction::{EntryFunction, SignedTransaction, TransactionArgument, TransactionPayload},
+        LocalAccount, TransactionOptions, TransferOptions,
     },
 };
+use crate::txs_core::util::{format_args, format_type_args, parse_function_id};
 use anyhow::{anyhow, Context, Result};
-use aptos_rest_client::{Account, Client as ApiClient, FaucetClient, PendingTransaction};
+use aptos_rest_client::{
+    aptos_api_types::{EntryFunctionId, IndexResponse, MoveType, ViewRequest},
+    Account, Client as ApiClient, FaucetClient, PendingTransaction,
+};
 use bcs;
 use move_core_types::{
     identifier::Identifier,
     language_storage::{ModuleId, TypeTag},
+    parser::{parse_transaction_arguments, parse_type_tags},
+    transaction_argument::convert_txn_args,
 };
 use once_cell::sync::Lazy;
 use std::{
@@ -58,17 +61,9 @@ impl Client {
         from_account: &mut LocalAccount,
         to_account: AccountAddress,
         amount: u64,
-        options: Option<TransferOptions<'_>>,
+        options: TransferOptions<'_>,
     ) -> Result<PendingTransaction> {
-        let options = options.unwrap_or_default();
-
-        let chain_id = self
-            .api_client
-            .get_index()
-            .await
-            .context("Failed to get chain ID")?
-            .inner()
-            .chain_id;
+        let chain_id = self.get_index().await?.chain_id;
         let transaction_builder = TransactionBuilder::new(
             TransactionPayload::EntryFunction(EntryFunction::new(
                 ModuleId::new(AccountAddress::ONE, Identifier::new("coin").unwrap()),
@@ -89,12 +84,64 @@ impl Client {
         .max_gas_amount(options.max_gas_amount)
         .gas_unit_price(options.gas_unit_price);
         let signed_txn = from_account.sign_with_transaction_builder(transaction_builder);
-        Ok(self
-            .api_client
-            .submit(&signed_txn)
+        self.submit_transaction(&signed_txn).await
+    }
+
+    pub async fn generate_transaction(
+        &self,
+        from_account: &mut LocalAccount,
+        function_id: &str,
+        ty_args: Option<String>,
+        args: Option<String>,
+        options: TransactionOptions,
+    ) -> Result<SignedTransaction> {
+        let chain_id = self.get_index().await?.chain_id;
+        let (module_address, module_name, function_name) = parse_function_id(function_id)?;
+        let module = ModuleId::new(module_address, module_name);
+        let ty_args: Vec<TypeTag> = if let Some(ty_args) = ty_args {
+            parse_type_tags(&ty_args)
+                .context(format!("Unable to parse the type argument(s): {ty_args}"))?
+        } else {
+            vec![]
+        };
+        let args: Vec<TransactionArgument> = if let Some(args) = args {
+            parse_transaction_arguments(&args)
+                .context(format!("Unable to parse argument(s): {args}"))?
+        } else {
+            vec![]
+        };
+
+        println!("{}", format_type_args(&ty_args));
+        println!("{}", format_args(&args));
+
+        let expiration_timestamp_secs = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + options.timeout_secs;
+
+        let transaction_builder = TransactionBuilder::new(
+            TransactionPayload::EntryFunction(EntryFunction::new(
+                module,
+                function_name,
+                ty_args,
+                convert_txn_args(&args),
+            )),
+            expiration_timestamp_secs,
+            ChainId::new(chain_id),
+        )
+        .max_gas_amount(options.max_gas_amount)
+        .gas_unit_price(options.gas_unit_price);
+
+        Ok(from_account.sign_with_transaction_builder(transaction_builder))
+    }
+
+    async fn get_index(&self) -> Result<IndexResponse> {
+        self.api_client
+            .get_index()
             .await
-            .context("Failed to submit transfer transaction")?
-            .into_inner())
+            .context("Failed to Index")
+            .map(|res| res.inner().clone())
     }
 
     pub async fn get_account_balance(&self, account: &AccountAddress) -> Result<u64> {
@@ -141,6 +188,63 @@ impl Client {
         }
     }
 
+    pub async fn view(
+        &self,
+        function_id: &str,
+        ty_args: Option<String>,
+        args: Option<String>,
+    ) -> Result<Vec<serde_json::Value>> {
+        let entry_fuction_id = EntryFunctionId::from_str(function_id)
+            .context(format!("Invalid function id: {function_id}"))?;
+        let ty_args: Vec<MoveType> = if let Some(ty_args) = ty_args {
+            parse_type_tags(&ty_args)
+                .context(format!("Unable to parse the type argument(s): {ty_args}"))?
+                .iter()
+                .map(|t| t.into())
+                .collect()
+        } else {
+            vec![]
+        };
+        let args: Vec<serde_json::Value> = if let Some(args) = args {
+            let mut output = vec![];
+            for arg in args.split(',') {
+                let arg = serde_json::Value::try_from(arg.trim())
+                    .context(format!("Failed to parse argument: {arg}"))?;
+                output.push(arg);
+            }
+            output
+        } else {
+            vec![]
+        };
+
+        println!("{}", format_type_args(&ty_args));
+        println!("{}", format_args(&args));
+
+        let request = ViewRequest {
+            function: entry_fuction_id,
+            type_arguments: ty_args,
+            arguments: args,
+        };
+
+        self.api_client
+            .view(&request, None)
+            .await
+            .context("Failed to execute View request")
+            .map(|res| res.inner().to_owned())
+    }
+
+    pub async fn submit_transaction(
+        &self,
+        signed_trans: &SignedTransaction,
+    ) -> Result<PendingTransaction> {
+        Ok(self
+            .api_client
+            .submit(signed_trans)
+            .await
+            .context("Transaction failed")?
+            .into_inner())
+    }
+
     pub async fn wait_for_transaction(
         &self,
         pending_transaction: &PendingTransaction,
@@ -148,7 +252,7 @@ impl Client {
         self.api_client
             .wait_for_transaction(pending_transaction)
             .await
-            .context("Failed when waiting for the transaction")
+            .map_err(|e| anyhow!(e))
             .map(|_| ())
     }
 
@@ -166,40 +270,5 @@ impl Default for Client {
         let config = Config::default();
         let node_url = Url::from_str(&config.node_url).unwrap();
         Client::new(&node_url)
-    }
-}
-
-pub struct TransferOptions<'a> {
-    pub max_gas_amount: u64,
-
-    pub gas_unit_price: u64,
-
-    /// This is the number of seconds from now you're willing to wait for the
-    /// transaction to be committed.
-    pub timeout_secs: u64,
-
-    /// This is the coin type to transfer.
-    pub coin_type: &'a str,
-}
-
-impl<'a> Default for TransferOptions<'a> {
-    fn default() -> Self {
-        Self {
-            max_gas_amount: DEFAULT_MAX_GAS_AMOUNT,
-            gas_unit_price: DEFAULT_GAS_UNIT_PRICE,
-            timeout_secs: DEFAULT_TIMEOUT_SECS,
-            coin_type: DEFAULT_COIN_TYPE,
-        }
-    }
-}
-
-impl<'a> TransferOptions<'a> {
-    pub fn from_gas_unit_price(gas_unit_price: u64) -> Self {
-        Self {
-            max_gas_amount: DEFAULT_MAX_GAS_AMOUNT,
-            gas_unit_price,
-            timeout_secs: DEFAULT_TIMEOUT_SECS,
-            coin_type: DEFAULT_COIN_TYPE,
-        }
     }
 }

@@ -1,15 +1,12 @@
-use crate::txs_core::{
-    crypto::ed25519::Ed25519PrivateKey,
-    types::{AccountKey, LocalAccount},
-};
-use anyhow::{bail, Context, Result};
+use crate::txs_core::types::LocalAccount;
+use anyhow::Result;
 use indoc::formatdoc;
 
-pub fn run(private_key: &str) -> Result<String> {
+pub async fn run(private_key: &str) -> Result<String> {
     let account = if private_key.is_empty() {
         LocalAccount::generate(&mut rand::rngs::OsRng)
     } else {
-        generate_account_from(private_key)?
+        LocalAccount::from_private_key(private_key, Some(0)).await?
     };
 
     let private_key = hex::encode(account.private_key().to_bytes());
@@ -27,30 +24,13 @@ pub fn run(private_key: &str) -> Result<String> {
     ))
 }
 
-fn generate_account_from(private_key: &str) -> Result<LocalAccount> {
-    let private_key = hex::decode(private_key)
-        .context(format!("Unable to decode the private key: {private_key}"))?;
-
-    if private_key.len() != 32 {
-        bail!(
-            "Incorrect length of the private key: {} bytes (it should be 32 bytes)",
-            private_key.len()
-        )
-    }
-
-    let private_key = Ed25519PrivateKey::try_from(&private_key[..])?;
-    let account_key = AccountKey::from_private_key(private_key);
-    let account_address = account_key.authentication_key().derived_address();
-    Ok(LocalAccount::new(account_address, account_key, 0))
-}
-
 #[cfg(test)]
 mod tests {
     use super::run;
 
-    #[test]
-    fn generate_account_properly() {
-        let result = run("").unwrap();
+    #[tokio::test]
+    async fn generate_account_properly() {
+        let result = run("").await.unwrap();
         let result = result.split("\n").collect::<Vec<_>>();
 
         let private_key = hex::decode(result[0].replace("Private key: ", "")).unwrap();
@@ -66,10 +46,10 @@ mod tests {
         assert!(result[3].starts_with("Account address: 0x"));
     }
 
-    #[test]
-    fn generate_account_from_private_key_properly() {
+    #[tokio::test]
+    async fn generate_account_from_private_key_properly() {
         let private_key = "c43f57994644ebda1eabfebf84def73fbd1d3ce442a9d2b2f4cb9f4da7b9908c";
-        let result = run(private_key).unwrap();
+        let result = run(private_key).await.unwrap();
         let result = result.split("\n").collect::<Vec<_>>();
         let expected_private_key = format!("Private key: {private_key}");
         let expected_public_key =

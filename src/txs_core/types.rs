@@ -3,13 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use super::{
+    client::Client,
+    constant::{
+        DEFAULT_COIN_TYPE, DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS,
+    },
     transaction_builder::TransactionBuilder,
     types::{
         account_address::AccountAddress,
         transaction::{authenticator::AuthenticationKey, RawTransaction, SignedTransaction},
     },
 };
-use anyhow::Result;
+use anyhow::{bail, Context, Result};
 use aptos_crypto::{
     ed25519::{Ed25519PrivateKey, Ed25519PublicKey},
     traits::Uniform,
@@ -67,6 +71,34 @@ impl LocalAccount {
             key,
             sequence_number,
         })
+    }
+
+    pub async fn from_private_key(private_key: &str, sequence_number: Option<u64>) -> Result<Self> {
+        let private_key = hex::decode(private_key)
+            .context(format!("Unable to decode the private key: {private_key}"))?;
+
+        if private_key.len() != 32 {
+            bail!(
+                "Incorrect length of the private key: {} bytes (it should be 32 bytes)",
+                private_key.len()
+            )
+        }
+        let private_key = Ed25519PrivateKey::try_from(&private_key[..])?;
+        let account_key = AccountKey::from_private_key(private_key);
+        let account_address = account_key.authentication_key().derived_address();
+        let sequence_number = match sequence_number {
+            Some(seq) => seq,
+            None => {
+                let client = Client::default();
+                client.get_sequence_number(&account_address).await?
+            }
+        };
+
+        Ok(LocalAccount::new(
+            account_address,
+            account_key,
+            sequence_number,
+        ))
     }
 
     /// Generate a new account locally. Note: This function does not actually
@@ -212,12 +244,40 @@ impl From<Ed25519PrivateKey> for AccountKey {
     }
 }
 
+pub struct TransferOptions<'a> {
+    pub max_gas_amount: u64,
+    pub gas_unit_price: u64,
+    /// This is the number of seconds from now you're willing to wait for the
+    /// transaction to be committed.
+    pub timeout_secs: u64,
+    /// This is the coin type to transfer.
+    pub coin_type: &'a str,
+}
+
+impl<'a> Default for TransferOptions<'a> {
+    fn default() -> Self {
+        Self {
+            max_gas_amount: DEFAULT_MAX_GAS_AMOUNT,
+            gas_unit_price: DEFAULT_GAS_UNIT_PRICE,
+            timeout_secs: DEFAULT_TIMEOUT_SECS,
+            coin_type: DEFAULT_COIN_TYPE,
+        }
+    }
+}
+pub struct TransactionOptions {
+    pub max_gas_amount: u64,
+    pub gas_unit_price: u64,
+    /// This is the number of seconds from now you're willing to wait for the
+    /// transaction to be committed.
+    pub timeout_secs: u64,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_recover_account_from_derive_path() {
+    fn recover_account_from_derive_path() {
         // Same constants in test cases of TypeScript
         // https://github.com/aptos-labs/aptos-core/blob/main/ecosystem/typescript/sdk/src/aptos_account.test.ts
         let derive_path = "m/44'/637'/0'/0'/0'";
@@ -234,5 +294,42 @@ mod tests {
 
         // Return an error for empty mnemonic phrase.
         assert!(LocalAccount::from_derive_path(derive_path, "", 0).is_err());
+    }
+
+    #[test]
+    fn create_transfer_options() {
+        let options = TransferOptions::default();
+        assert_eq!(DEFAULT_MAX_GAS_AMOUNT, options.max_gas_amount);
+        assert_eq!(DEFAULT_GAS_UNIT_PRICE, options.gas_unit_price);
+        assert_eq!(DEFAULT_TIMEOUT_SECS, options.timeout_secs);
+        assert_eq!(DEFAULT_COIN_TYPE, options.coin_type);
+    }
+
+    #[tokio::test]
+    async fn create_local_account_from_private_key() {
+        let private_key = "c43f57994644ebda1eabfebf84def73fbd1d3ce442a9d2b2f4cb9f4da7b9908c";
+        let local_account = LocalAccount::from_private_key(private_key, Some(0))
+            .await
+            .unwrap();
+
+        let expected_public_key =
+            "ef00c7b6f6246543445a847a6d136d293c107b05044f7fc105a063c93c50d7a0";
+        let expected_auth_key = "fda03992f666875ddf854193fccd3e62ea111d066029490dd37c891ed9c3f880";
+        let expected_account_address =
+            "0xfda03992f666875ddf854193fccd3e62ea111d066029490dd37c891ed9c3f880";
+
+        assert_eq!(
+            private_key,
+            hex::encode(local_account.private_key().to_bytes())
+        );
+        assert_eq!(expected_public_key, local_account.public_key().to_string());
+        assert_eq!(
+            expected_auth_key,
+            local_account.authentication_key().to_string()
+        );
+        assert_eq!(
+            expected_account_address,
+            local_account.address().to_hex_literal()
+        );
     }
 }

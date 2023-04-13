@@ -1,7 +1,7 @@
 use crate::txs_core::{
     client::Client,
     crypto::ed25519::Ed25519PrivateKey,
-    types::{AccountKey, LocalAccount},
+    types::{AccountKey, LocalAccount, TransferOptions},
 };
 use anyhow::{Context, Result};
 
@@ -68,7 +68,7 @@ pub async fn run() -> Result<()> {
 
     // Have Alice send Bob some coins.
     let txn_hash = client
-        .transfer(&mut alice, bob.address(), 1_000, None)
+        .transfer(&mut alice, bob.address(), 1_000, TransferOptions::default())
         .await
         .context("Failed to submit transaction to transfer coins")?;
     client.wait_for_transaction(&txn_hash).await?;
@@ -92,7 +92,7 @@ pub async fn run() -> Result<()> {
 
     // Have Alice send Bob some more coins.
     let txn_hash = client
-        .transfer(&mut alice, bob.address(), 1_000, None)
+        .transfer(&mut alice, bob.address(), 1_000, TransferOptions::default())
         .await
         .context("Failed to submit transaction to transfer coins")?;
 
