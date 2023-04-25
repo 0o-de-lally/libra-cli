@@ -1,31 +1,12 @@
-use crate::{
-    coin_client::CoinClient,
-    config::Config,
+use crate::txs_core::{
+    client::Client,
     crypto::ed25519::Ed25519PrivateKey,
-    rest_client::{Client, FaucetClient},
-    types::{AccountKey, LocalAccount},
+    types::{AccountKey, LocalAccount, TransferOptions},
 };
 use anyhow::{Context, Result};
-use once_cell::sync::Lazy;
-use std::str::FromStr;
-use url::Url;
 
-static FAUCET_URL: Lazy<Url> = Lazy::new(|| {
-    Url::from_str(
-        std::env::var("APTOS_FAUCET_URL")
-            .as_ref()
-            .map(|s| s.as_str())
-            .unwrap_or("http://0.0.0.0:8081"),
-    )
-    .unwrap()
-});
-
-pub async fn transfer_coin() -> Result<()> {
-    let config = Config::default();
-    let node_url = Url::from_str(&config.node_url).unwrap();
-    let rest_client = Client::new(node_url.clone());
-    let faucet_client = FaucetClient::new(FAUCET_URL.clone(), node_url.clone());
-    let coin_client = CoinClient::new(&rest_client);
+pub async fn run() -> Result<()> {
+    let client = Client::default();
 
     // let mut alice = LocalAccount::generate(&mut rand::rngs::OsRng); // Aptos Alice
     // 0L Alice - from pri key
@@ -59,12 +40,12 @@ pub async fn transfer_coin() -> Result<()> {
     println!("Bob: {}", bob.address().to_hex_literal());
 
     // Create the accounts on chain, but only fund Alice.
-    faucet_client
-        .fund(alice.address(), 100_000_000)
+    client
+        .fund_by_faucet(alice.address(), 100_000_000)
         .await
         .context("Failed to fund Alice's account")?;
-    faucet_client
-        .create_account(bob.address())
+    client
+        .create_account_by_faucet(bob.address())
         .await
         .context("Failed to fund Bob's account")?;
 
@@ -72,69 +53,63 @@ pub async fn transfer_coin() -> Result<()> {
     println!("\n=== Initial Balances ===");
     println!(
         "Alice: {:?}",
-        coin_client
+        client
             .get_account_balance(&alice.address())
             .await
             .context("Failed to get Alice's account balance")?
     );
     println!(
         "Bob: {:?}",
-        coin_client
+        client
             .get_account_balance(&bob.address())
             .await
             .context("Failed to get Bob's account balance")?
     );
 
     // Have Alice send Bob some coins.
-    let txn_hash = coin_client
-        .transfer(&mut alice, bob.address(), 1_000, None)
+    let txn_hash = client
+        .transfer(&mut alice, bob.address(), 1_000, TransferOptions::default())
         .await
         .context("Failed to submit transaction to transfer coins")?;
-    rest_client
-        .wait_for_transaction(&txn_hash)
-        .await
-        .context("Failed when waiting for the transfer transaction")?;
+    client.wait_for_transaction(&txn_hash).await?;
 
     // Print intermediate balances.
     println!("\n=== Intermediate Balances ===");
     println!(
         "Alice: {:?}",
-        coin_client
+        client
             .get_account_balance(&alice.address())
             .await
             .context("Failed to get Alice's account balance the second time")?
     );
     println!(
         "Bob: {:?}",
-        coin_client
+        client
             .get_account_balance(&bob.address())
             .await
             .context("Failed to get Bob's account balance the second time")?
     );
 
     // Have Alice send Bob some more coins.
-    let txn_hash = coin_client
-        .transfer(&mut alice, bob.address(), 1_000, None)
+    let txn_hash = client
+        .transfer(&mut alice, bob.address(), 1_000, TransferOptions::default())
         .await
         .context("Failed to submit transaction to transfer coins")?;
 
-    rest_client
-        .wait_for_transaction(&txn_hash)
-        .await
-        .context("Failed when waiting for the transfer transaction")?;
+    client.wait_for_transaction(&txn_hash).await?;
 
     // Print final balances.
     println!("\n=== Final Balances ===");
     println!(
         "Alice: {:?}",
-        coin_client
+        client
             .get_account_balance(&alice.address())
             .await
             .context("Failed to get Alice's account balance the second time")?
     );
     println!(
         "Bob: {:?}",
-        coin_client
+        client
             .get_account_balance(&bob.address())
             .await
             .context("Failed to get Bob's account balance the second time")?

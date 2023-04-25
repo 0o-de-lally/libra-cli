@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use home::home_dir;
 use rand::seq::SliceRandom;
 use serde::Deserialize;
 use std::{env, fs};
@@ -14,7 +15,10 @@ impl Config {
             // If the environment variable is not set, we get the url from toml file
             match Self::read_toml_file_from(toml_path) {
                 Ok(toml) => toml.get_node_url(),
-                Err(_) => String::from("http://0.0.0.0:8080/"),
+                Err(error) => {
+                    println!("{error}");
+                    String::from("http://0.0.0.0:8080/")
+                }
             }
         });
 
@@ -30,7 +34,8 @@ impl Config {
 
 impl Default for Config {
     fn default() -> Self {
-        Self::from("~/.0L/0L.toml")
+        let home_dir = home_dir().unwrap_or_default();
+        Self::from(&format!("{}/.0L/0L.toml", home_dir.display()))
     }
 }
 
