@@ -6,6 +6,7 @@ use crate::txs_core::{
     types::{account_address::AccountAddress, LocalAccount, TransferOptions},
 };
 use anyhow::{Context, Result};
+use aptos_crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt};
 
 pub async fn run(
     to_account: &str,
@@ -15,6 +16,7 @@ pub async fn run(
     gas_unit_price: Option<u64>,
 ) -> Result<()> {
     let client = Client::default();
+    let private_key = Ed25519PrivateKey::from_encoded_string(private_key)?;
     let mut from_account = LocalAccount::from_private_key(private_key, None).await?;
     let to_account = AccountAddress::from_hex_literal(to_account).context(format!(
         "Failed to parse the recipient address {to_account}"

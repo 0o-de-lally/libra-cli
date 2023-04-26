@@ -1,14 +1,19 @@
-use crate::txs_core::types::LocalAccount;
-use anyhow::Result;
+use crate::txs_core::{crypto::ed25519::Ed25519PrivateKey, types::LocalAccount};
+use anyhow::{Context, Result};
+use aptos_crypto::ValidCryptoMaterialStringExt;
 use indoc::formatdoc;
+use libra_wallet::keys::validator_keygen;
 
 pub async fn run(private_key: &str) -> Result<String> {
-    let account = if private_key.is_empty() {
-        LocalAccount::generate(&mut rand::rngs::OsRng)
+    let private_key = if private_key.is_empty() {
+        let (_, _, private_identity, _) = validator_keygen(None)?;
+        private_identity.account_private_key
     } else {
-        LocalAccount::from_private_key(private_key, Some(0)).await?
+        Ed25519PrivateKey::from_encoded_string(private_key)
+            .context(format!("Unable to decode the private key: {private_key}"))?
     };
 
+    let account = LocalAccount::from_private_key(private_key, Some(0)).await?;
     let private_key = hex::encode(account.private_key().to_bytes());
     let public_key = account.public_key();
     let authentication_key = account.authentication_key();
@@ -16,6 +21,7 @@ pub async fn run(private_key: &str) -> Result<String> {
 
     Ok(formatdoc!(
         r#"
+            ====================================
             Private key: {private_key}
             Public key: {public_key}
             Authentication key: {authentication_key}

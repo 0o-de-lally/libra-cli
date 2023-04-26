@@ -13,7 +13,7 @@ use super::{
         transaction::{authenticator::AuthenticationKey, RawTransaction, SignedTransaction},
     },
 };
-use anyhow::{bail, Context, Result};
+use anyhow::Result;
 use aptos_crypto::{
     ed25519::{Ed25519PrivateKey, Ed25519PublicKey},
     traits::Uniform,
@@ -73,17 +73,10 @@ impl LocalAccount {
         })
     }
 
-    pub async fn from_private_key(private_key: &str, sequence_number: Option<u64>) -> Result<Self> {
-        let private_key = hex::decode(private_key)
-            .context(format!("Unable to decode the private key: {private_key}"))?;
-
-        if private_key.len() != 32 {
-            bail!(
-                "Incorrect length of the private key: {} bytes (it should be 32 bytes)",
-                private_key.len()
-            )
-        }
-        let private_key = Ed25519PrivateKey::try_from(&private_key[..])?;
+    pub async fn from_private_key(
+        private_key: Ed25519PrivateKey,
+        sequence_number: Option<u64>,
+    ) -> Result<Self> {
         let account_key = AccountKey::from_private_key(private_key);
         let account_address = account_key.authentication_key().derived_address();
         let sequence_number = match sequence_number {
