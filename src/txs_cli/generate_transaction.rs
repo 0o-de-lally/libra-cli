@@ -1,10 +1,16 @@
 use crate::txs_core::{
-    client::Client,
-    constant::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
-    types::{transaction::SignedTransaction, LocalAccount, TransactionOptions},
+    config::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
+    extension::{
+        client_ext::{ClientExt, TransactionOptions},
+        ed25519_private_key_ext::Ed25519PrivateKeyExt,
+    },
 };
 use anyhow::Result;
-use aptos_crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt};
+use aptos_sdk::{
+    crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt},
+    rest_client::Client,
+    types::transaction::SignedTransaction,
+};
 
 pub async fn run(
     function_id: &str,
@@ -16,7 +22,7 @@ pub async fn run(
 ) -> Result<SignedTransaction> {
     let client = Client::default();
     let private_key = Ed25519PrivateKey::from_encoded_string(private_key)?;
-    let mut account = LocalAccount::from_private_key(private_key, None).await?;
+    let mut account = private_key.get_account(None).await?;
     let options = TransactionOptions {
         max_gas_amount: max_gas.unwrap_or(DEFAULT_MAX_GAS_AMOUNT),
         gas_unit_price: gas_unit_price.unwrap_or(DEFAULT_GAS_UNIT_PRICE),

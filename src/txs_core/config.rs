@@ -4,8 +4,15 @@ use rand::seq::SliceRandom;
 use serde::Deserialize;
 use std::{env, fs};
 
+pub const DEFAULT_MAX_GAS_AMOUNT: u64 = 5_000;
+pub const DEFAULT_GAS_UNIT_PRICE: u64 = 100;
+pub const DEFAULT_TIMEOUT_SECS: u64 = 10;
+
 pub struct Config {
     pub node_url: String,
+    pub max_gas_amount: u64,
+    pub gas_unit_price: u64,
+    pub timeout_secs: u64,
 }
 
 impl Config {
@@ -22,7 +29,13 @@ impl Config {
             }
         });
 
-        Config { node_url }
+        Config {
+            node_url,
+            // TODO Read these configs from 0L.toml
+            max_gas_amount: DEFAULT_MAX_GAS_AMOUNT,
+            gas_unit_price: DEFAULT_GAS_UNIT_PRICE,
+            timeout_secs: DEFAULT_TIMEOUT_SECS,
+        }
     }
 
     fn read_toml_file_from(path: &str) -> Result<Toml> {

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::txs_core::util::format_signed_transaction;
 use anyhow::Result;
 use clap::Parser;
@@ -35,6 +37,14 @@ enum Subcommand {
             help = "Generate account from the given private key"
         )]
         private_key: Option<String>,
+
+        #[arg(
+            short,
+            long,
+            value_name = "OUTPUT_DIR",
+            help = "Path of the directory to store yaml files"
+        )]
+        output_dir: Option<String>,
     },
 
     #[clap(about = "Create onchain account by using Aptos faucet")]
@@ -246,10 +256,17 @@ impl TxsCli {
     pub async fn run(&self) -> Result<()> {
         match &self.subcommand {
             Some(Subcommand::Demo) => demo::run().await,
-            Some(Subcommand::GenerateLocalAccount { private_key }) => {
+            Some(Subcommand::GenerateLocalAccount {
+                private_key,
+                output_dir,
+            }) => {
                 println!(
                     "{}",
-                    generate_local_account::run(&private_key.clone().unwrap_or_default()).await?
+                    generate_local_account::run(
+                        &private_key.clone().unwrap_or_default(),
+                        output_dir.as_ref().map(PathBuf::from)
+                    )
+                    .await?
                 );
                 Ok(())
             }
