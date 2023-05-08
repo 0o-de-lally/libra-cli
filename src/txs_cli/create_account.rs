@@ -1,21 +1,22 @@
-use crate::txs_core::{client::Client, types::account_address::AccountAddress};
+use crate::txs_core::extension::faucet_client_ext::FaucetClientExt;
 use anyhow::{Context, Result};
+use aptos_sdk::{rest_client::FaucetClient, types::account_address::AccountAddress};
 
 pub async fn run(account_address: &str, coins: u64) -> Result<()> {
-    let client = Client::default();
+    let faucet_client = FaucetClient::default();
     let account_address = AccountAddress::from_hex_literal(account_address)?;
 
     if coins == 0 {
-        client
-            .create_account_by_faucet(account_address)
+        faucet_client
+            .create_account(account_address)
             .await
             .context(format!(
                 "Failed to create account {}",
                 account_address.to_hex_literal()
             ))?;
     } else {
-        client
-            .fund_by_faucet(account_address, coins)
+        faucet_client
+            .fund(account_address, coins)
             .await
             .context(format!("Failed to create account {}", account_address))?;
     }

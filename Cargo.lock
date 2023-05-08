@@ -569,7 +569,7 @@ dependencies = [
  "better_any",
  "blake2-rfc",
  "blst",
- "clap 3.2.24",
+ "clap 3.2.25",
  "codespan-reporting",
  "curve25519-dalek",
  "flate2",
@@ -625,7 +625,7 @@ dependencies = [
  "aptos-package-builder",
  "aptos-types",
  "bcs 0.1.4",
- "clap 3.2.24",
+ "clap 3.2.25",
  "move-binary-format 0.0.3 (git+https://github.com/0o-de-lally/zapatos.git?branch=vendor)",
  "move-core-types 0.0.4",
  "move-model",
@@ -912,6 +912,25 @@ dependencies = [
  "once_cell",
  "rayon",
  "thiserror",
+]
+
+[[package]]
+name = "aptos-sdk"
+version = "0.0.3"
+source = "git+https://github.com/0o-de-lally/zapatos.git?branch=vendor#d1716346b14792ae1800530840fefb4955cfddf4"
+dependencies = [
+ "anyhow",
+ "aptos-cached-packages",
+ "aptos-crypto",
+ "aptos-global-constants",
+ "aptos-rest-client",
+ "aptos-types",
+ "bcs 0.1.4",
+ "ed25519-dalek-bip32",
+ "move-core-types 0.0.4",
+ "rand_core 0.5.1",
+ "serde 1.0.160",
+ "tiny-bip39",
 ]
 
 [[package]]
@@ -1778,13 +1797,13 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.2.24"
+version = "3.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eef2b3ded6a26dfaec672a742c93c8cf6b689220324da509ec5caa20de55dc83"
+checksum = "4ea181bf566f71cb9a5d17a59e1871af638180a18fb0035c92ae62b705207123"
 dependencies = [
  "atty",
  "bitflags",
- "clap_derive 3.2.24",
+ "clap_derive 3.2.25",
  "clap_lex 0.2.4",
  "indexmap",
  "once_cell",
@@ -1795,9 +1814,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.2.4"
+version = "4.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "956ac1f6381d8d82ab4684768f89c0ea3afe66925ceadb4eeb3fc452ffc55d62"
+checksum = "8a1f23fa97e1d1641371b51f35535cb26959b8e27ab50d167a8b996b5bada819"
 dependencies = [
  "clap_builder",
  "clap_derive 4.2.0",
@@ -1806,9 +1825,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.2.4"
+version = "4.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84080e799e54cff944f4b4a4b0e71630b0e0443b25b985175c7dddc1a859b749"
+checksum = "0fdc5d93c358224b4d6867ef1356d740de2303e9892edc06c5340daeccd96bab"
 dependencies = [
  "anstream",
  "anstyle",
@@ -1819,9 +1838,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "3.2.24"
+version = "3.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d756c5824fc5c0c1ee8e36000f576968dbcb2081def956c83fad6f40acd46f96"
+checksum = "ae6371b8bdc8b7d3959e9cf7b22d4435ef3e79e138688421ec654acf8c81b008"
 dependencies = [
  "heck 0.4.1",
  "proc-macro-error",
@@ -1902,7 +1921,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b1b9d958c2b1368a663f05538fc1b5975adce1e19f435acceae987aceeeb369"
 dependencies = [
  "lazy_static 1.4.0",
- "nom 5.1.2",
+ "nom 5.1.3",
  "rust-ini",
  "serde 1.0.160",
  "serde-hjson",
@@ -3525,7 +3544,7 @@ dependencies = [
  "aptos-keygen",
  "aptos-types",
  "blst",
- "clap 4.2.4",
+ "clap 4.2.5",
  "dialoguer",
  "diem-wallet",
  "dirs",
@@ -3628,9 +3647,9 @@ checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
 
 [[package]]
 name = "linux-raw-sys"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36eb31c1778188ae1e64398743890d0877fef36d11521ac60406b42016e8c2cf"
+checksum = "2e8776872cdc2f073ccaab02e336fa321328c1e02646ebcb9d2108d0baab480d"
 
 [[package]]
 name = "lock_api"
@@ -3862,7 +3881,7 @@ source = "git+https://github.com/0o-de-lally/zapatos.git?branch=vendor#d1716346b
 dependencies = [
  "anyhow",
  "bcs 0.1.4",
- "clap 3.2.24",
+ "clap 3.2.25",
  "codespan-reporting",
  "difference",
  "hex",
@@ -3929,7 +3948,7 @@ source = "git+https://github.com/0o-de-lally/zapatos.git?branch=vendor#d1716346b
 dependencies = [
  "anyhow",
  "bcs 0.1.4",
- "clap 3.2.24",
+ "clap 3.2.25",
  "codespan",
  "colored",
  "move-binary-format 0.0.3 (git+https://github.com/0o-de-lally/zapatos.git?branch=vendor)",
@@ -3948,7 +3967,7 @@ version = "0.1.0"
 source = "git+https://github.com/0o-de-lally/zapatos.git?branch=vendor#d1716346b14792ae1800530840fefb4955cfddf4"
 dependencies = [
  "anyhow",
- "clap 3.2.24",
+ "clap 3.2.25",
  "colored",
  "move-binary-format 0.0.3 (git+https://github.com/0o-de-lally/zapatos.git?branch=vendor)",
  "move-bytecode-source-map",
@@ -4071,7 +4090,7 @@ source = "git+https://github.com/0o-de-lally/zapatos.git?branch=vendor#d1716346b
 dependencies = [
  "anyhow",
  "bcs 0.1.4",
- "clap 3.2.24",
+ "clap 3.2.25",
  "colored",
  "dirs-next",
  "itertools",
@@ -4108,7 +4127,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "atty",
- "clap 3.2.24",
+ "clap 3.2.25",
  "codespan",
  "codespan-reporting",
  "futures",
@@ -4359,9 +4378,9 @@ checksum = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
 
 [[package]]
 name = "nom"
-version = "5.1.2"
+version = "5.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ffb4262d26ed83a1c0a33a38fe2bb15797329c85770da05e6b828ddb782627af"
+checksum = "08959a387a676302eebf4ddbcbc611da04285579f76f88ee0506c63b1a61dd4b"
 dependencies = [
  "lexical-core",
  "memchr",
@@ -4751,9 +4770,9 @@ checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
 name = "pest"
-version = "2.5.7"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b1403e8401ad5dedea73c626b99758535b342502f8d1e361f4a2dd952749122"
+checksum = "e68e84bfb01f0507134eac1e9b410a12ba379d064eab48c50ba4ce329a527b70"
 dependencies = [
  "thiserror",
  "ucd-trie",
@@ -4761,9 +4780,9 @@ dependencies = [
 
 [[package]]
 name = "pest_derive"
-version = "2.5.7"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be99c4c1d2fc2769b1d00239431d711d08f6efedcecb8b6e30707160aee99c15"
+checksum = "6b79d4c71c865a25a4322296122e3924d30bc8ee0834c8bfc8b95f7f054afbfb"
 dependencies = [
  "pest",
  "pest_generator",
@@ -4771,9 +4790,9 @@ dependencies = [
 
 [[package]]
 name = "pest_generator"
-version = "2.5.7"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e56094789873daa36164de2e822b3888c6ae4b4f9da555a1103587658c805b1e"
+checksum = "6c435bf1076437b851ebc8edc3a18442796b30f1728ffea6262d59bbe28b077e"
 dependencies = [
  "pest",
  "pest_meta",
@@ -4784,9 +4803,9 @@ dependencies = [
 
 [[package]]
 name = "pest_meta"
-version = "2.5.7"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6733073c7cff3d8459fda0e42f13a047870242aed8b509fe98000928975f359e"
+checksum = "745a452f8eb71e39ffd8ee32b3c5f51d03845f99786fa9b68db6ff509c505411"
 dependencies = [
  "once_cell",
  "pest",
@@ -6393,9 +6412,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-stream"
-version = "0.1.13"
+version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76cd2598a37719e3cd4c28af93f978506a97a2920ef4d96e4b12e38b8cbc8940"
+checksum = "397c988d37662c7dda6d2208364a706264bf3d6138b11d436cbac0ad38832842"
 dependencies = [
  "futures-core",
  "pin-project-lite",
@@ -6521,20 +6540,16 @@ name = "txs"
 version = "0.0.1"
 dependencies = [
  "anyhow",
- "aptos-cached-packages",
- "aptos-crypto",
- "aptos-global-constants",
- "aptos-rest-client",
- "aptos-types",
+ "aptos-sdk",
+ "async-trait",
  "bcs 0.1.3",
- "clap 4.2.4",
+ "clap 4.2.5",
  "colored",
  "ed25519-dalek-bip32",
  "hex",
  "home",
  "indoc 2.0.1",
  "libra-wallet",
- "move-core-types 0.0.4",
  "once_cell",
  "rand 0.7.3",
  "rand_core 0.5.1",

@@ -1,6 +1,8 @@
-use super::types::{account_address::AccountAddress, transaction::SignedTransaction};
 use anyhow::{bail, Context, Result};
-use move_core_types::identifier::Identifier;
+use aptos_sdk::{
+    move_types::identifier::Identifier,
+    types::{account_address::AccountAddress, transaction::SignedTransaction},
+};
 use std::fmt::{Debug, Display};
 
 pub fn format_signed_transaction(signed_trans: &SignedTransaction) -> String {

@@ -1,5 +1,6 @@
-use crate::txs_core::client::Client;
+use crate::txs_core::extension::client_ext::ClientExt;
 use anyhow::Result;
+use aptos_sdk::rest_client::Client;
 
 pub async fn run(
     function_id: &str,
@@ -8,7 +9,7 @@ pub async fn run(
 ) -> Result<String> {
     let client = Client::default();
     let result = client
-        .view(function_id, type_args, args)
+        .view_ext(function_id, type_args, args)
         .await?
         .iter()
         .map(|v| v.to_string())
