@@ -1,4 +1,4 @@
-use crate::txs_core::extension::{client_ext::ClientExt, faucet_client_ext::FaucetClientExt};
+use crate::txs::extension::{client_ext::ClientExt, faucet_client_ext::FaucetClientExt};
 use anyhow::{Context, Result};
 use aptos_sdk::{
     coin_client::CoinClient,

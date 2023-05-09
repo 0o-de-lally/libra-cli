@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::txs_core::util::format_signed_transaction;
+use crate::txs::util::format_signed_transaction;
 use anyhow::Result;
 use clap::Parser;
 use colored::Colorize;

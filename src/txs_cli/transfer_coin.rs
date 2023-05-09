@@ -1,4 +1,4 @@
-use crate::txs_core::{
+use crate::txs::{
     config::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
     extension::{client_ext::ClientExt, ed25519_private_key_ext::Ed25519PrivateKeyExt},
 };

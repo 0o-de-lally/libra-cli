@@ -3,7 +3,7 @@ use aptos_sdk::{
     coin_client::CoinClient, rest_client::Client, types::account_address::AccountAddress,
 };
 
-use crate::txs_core::extension::client_ext::ClientExt;
+use crate::txs::extension::client_ext::ClientExt;
 
 pub async fn run(account_address: &str) -> Result<String> {
     let client = Client::default();

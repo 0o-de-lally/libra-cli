@@ -1,4 +1,4 @@
-use crate::txs_core::extension::ed25519_private_key_ext::Ed25519PrivateKeyExt;
+use crate::txs::extension::ed25519_private_key_ext::Ed25519PrivateKeyExt;
 use anyhow::{Context, Result};
 use aptos_sdk::crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt};
 use indoc::formatdoc;

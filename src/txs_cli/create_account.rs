@@ -1,4 +1,4 @@
-use crate::txs_core::extension::faucet_client_ext::FaucetClientExt;
+use crate::txs::extension::faucet_client_ext::FaucetClientExt;
 use anyhow::{Context, Result};
 use aptos_sdk::{rest_client::FaucetClient, types::account_address::AccountAddress};
 

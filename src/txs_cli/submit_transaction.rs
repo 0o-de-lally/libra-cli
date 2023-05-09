@@ -1,4 +1,4 @@
-use crate::txs_core::extension::client_ext::ClientExt;
+use crate::txs::extension::client_ext::ClientExt;
 use anyhow::Result;
 use aptos_sdk::{rest_client::Client, types::transaction::SignedTransaction};
 
