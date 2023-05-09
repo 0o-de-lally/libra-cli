@@ -1,4 +1,3 @@
-use crate::txs::extension::{client_ext::ClientExt, faucet_client_ext::FaucetClientExt};
 use anyhow::{Context, Result};
 use aptos_sdk::{
     coin_client::CoinClient,
@@ -6,6 +5,7 @@ use aptos_sdk::{
     rest_client::{Client, FaucetClient},
     types::{AccountKey, LocalAccount},
 };
+use txs::extension::{client_ext::ClientExt, faucet_client_ext::FaucetClientExt};
 
 pub async fn run() -> Result<()> {
     let client = Client::default();
