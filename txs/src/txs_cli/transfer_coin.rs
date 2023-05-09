@@ -1,13 +1,13 @@
-use crate::txs::{
-    config::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
-    extension::{client_ext::ClientExt, ed25519_private_key_ext::Ed25519PrivateKeyExt},
-};
 use anyhow::{Context, Result};
 use aptos_sdk::{
     coin_client::{CoinClient, TransferOptions},
     crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt},
     rest_client::Client,
     types::account_address::AccountAddress,
+};
+use txs::{
+    config::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
+    extension::{client_ext::ClientExt, ed25519_private_key_ext::Ed25519PrivateKeyExt},
 };
 
 pub async fn run(

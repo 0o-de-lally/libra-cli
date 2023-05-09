@@ -1,10 +1,15 @@
-[package]
-name = "txs"
-description = ""
-version = "0.0.1"
-edition = '2021'
+[workspace]
+members = ["txs", "libra-config"]
 
-[dependencies]
+
+[workspace.package]
+authors = ["East Agile <open-source@eastagile.com>"]
+edition = "2021"
+homepage = "https://www.eastagile.com"
+license = "Apache-2.0"
+repository = "https://github.com/EastAgile/0l-txs"
+
+[workspace.dependencies]
 # Aptos dependencies
 aptos-sdk = { git = "https://github.com/0o-de-lally/zapatos.git", branch = "vendor" }
 aptos = { git = "https://github.com/0o-de-lally/zapatos.git", branch = "vendor" }

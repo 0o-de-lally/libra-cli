@@ -1,6 +1,8 @@
 use anyhow::Result;
 use clap::Parser;
-use txs::txs_cli::TxsCli;
+use txs_cli::TxsCli;
+
+mod txs_cli;
 
 #[tokio::main]
 async fn main() -> Result<()> {

@@ -1,0 +1,28 @@
+[package]
+name = "txs"
+version = "0.0.1"
+
+# Workspace inherited keys
+authors = { workspace = true }
+edition = { workspace = true }
+homepage = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[dependencies]
+aptos-sdk = { workspace = true }
+bcs = { workspace = true }
+libra-wallet = { workspace = true }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+clap = { workspace = true }
+once_cell = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+url = { workspace = true }
+toml_edit = { workspace = true }
+home = { workspace = true }
+hex = { workspace = true }
+indoc = { workspace = true }
+colored = { workspace = true }

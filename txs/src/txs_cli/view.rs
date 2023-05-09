@@ -1,6 +1,6 @@
-use crate::txs::extension::client_ext::ClientExt;
 use anyhow::Result;
 use aptos_sdk::rest_client::Client;
+use txs::extension::client_ext::ClientExt;
 
 pub async fn run(
     function_id: &str,

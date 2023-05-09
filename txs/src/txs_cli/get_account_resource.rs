@@ -1,6 +1,6 @@
-use crate::txs::extension::client_ext::ClientExt;
 use anyhow::Result;
 use aptos_sdk::{rest_client::Client, types::account_address::AccountAddress};
+use txs::extension::client_ext::ClientExt;
 
 pub async fn run(account_address: &str, resource_type: Option<String>) -> Result<String> {
     let client = Client::default();

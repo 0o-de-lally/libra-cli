@@ -1,10 +1,9 @@
-use crate::txs::util::format_signed_transaction;
 use anyhow::Result;
-use aptos::common::types::ProfileOptions;
 use clap::Parser;
 use colored::Colorize;
 use indoc::indoc;
 use std::path::PathBuf;
+use txs::util::format_signed_transaction;
 
 mod create_account;
 mod demo;
@@ -12,7 +11,6 @@ mod generate_local_account;
 mod generate_transaction;
 mod get_account_balance;
 mod get_account_resource;
-mod init_config;
 mod submit_transaction;
 mod transfer_coin;
 mod view;
@@ -28,24 +26,6 @@ pub struct TxsCli {
 enum Subcommand {
     /// Demo transfer coin example for local testnet
     Demo,
-
-    /// Generate yaml files that store the 0L configs
-    InitConfig {
-        #[clap(flatten)]
-        profile_options: ProfileOptions,
-
-        /// Whether to skip the faucet for a non-faucet endpoint
-        #[clap(long)]
-        skip_faucet: bool,
-
-        /// Mutually exclusive with --private-key
-        #[clap(long, group = "private_key_input", parse(from_os_str))]
-        private_key_file: Option<PathBuf>,
-
-        /// Mutually exclusive with --private-key-file
-        #[clap(long, group = "private_key_input")]
-        private_key: Option<String>,
-    },
 
     /// Generate keys and account address locally
     GenerateLocalAccount {
@@ -211,20 +191,6 @@ impl TxsCli {
     pub async fn run(&self) -> Result<()> {
         match &self.subcommand {
             Some(Subcommand::Demo) => demo::run().await,
-            Some(Subcommand::InitConfig {
-                profile_options,
-                skip_faucet,
-                private_key_file,
-                private_key,
-            }) => {
-                init_config::run(
-                    profile_options,
-                    *skip_faucet,
-                    private_key_file.to_owned(),
-                    private_key.to_owned(),
-                )
-                .await
-            }
             Some(Subcommand::GenerateLocalAccount {
                 private_key,
                 output_dir,

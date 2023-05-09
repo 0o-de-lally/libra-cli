@@ -1,4 +1,4 @@
-use crate::txs::config::Config;
+use crate::config::Config;
 use aptos_sdk::rest_client::FaucetClient;
 use once_cell::sync::Lazy;
 use std::str::FromStr;

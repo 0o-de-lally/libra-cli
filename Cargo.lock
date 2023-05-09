@@ -5366,6 +5366,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "348108ab3fba42ec82ff6e9564fc4ca0247bdccdc68dd8af9764bbc79c3c8ffb"
 
 [[package]]
+name = "libra-config"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "aptos",
+ "clap 3.2.25",
+ "tokio",
+]
+
+[[package]]
 name = "libra-wallet"
 version = "0.1.0"
 source = "git+https://github.com/0o-de-lally/libra-wallet.git?branch=main#76ac2b620722843780768469b909fc3c894e8381"
@@ -9261,7 +9271,6 @@ name = "txs"
 version = "0.0.1"
 dependencies = [
  "anyhow",
- "aptos",
  "aptos-sdk",
  "async-trait",
  "bcs 0.1.3",
