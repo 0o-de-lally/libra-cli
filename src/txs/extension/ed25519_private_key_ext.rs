@@ -35,7 +35,7 @@ impl Ed25519PrivateKeyExt for Ed25519PrivateKey {
 
 #[cfg(test)]
 mod tests {
-    use crate::txs_core::extension::ed25519_private_key_ext::Ed25519PrivateKeyExt;
+    use crate::txs::extension::ed25519_private_key_ext::Ed25519PrivateKeyExt;
     use aptos_sdk::crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt};
 
     #[tokio::test]

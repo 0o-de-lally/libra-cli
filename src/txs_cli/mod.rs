@@ -1,10 +1,10 @@
-use std::path::PathBuf;
-
 use crate::txs::util::format_signed_transaction;
 use anyhow::Result;
+use aptos::common::types::ProfileOptions;
 use clap::Parser;
 use colored::Colorize;
 use indoc::indoc;
+use std::path::PathBuf;
 
 mod create_account;
 mod demo;
@@ -12,6 +12,7 @@ mod generate_local_account;
 mod generate_transaction;
 mod get_account_balance;
 mod get_account_resource;
+mod init_config;
 mod submit_transaction;
 mod transfer_coin;
 mod view;
@@ -25,121 +26,95 @@ pub struct TxsCli {
 
 #[derive(clap::Subcommand)]
 enum Subcommand {
-    #[clap(about = "Demo transfer coin example for local testnet")]
+    /// Demo transfer coin example for local testnet
     Demo,
 
-    #[clap(about = "Generate keys and account address locally")]
+    /// Generate yaml files that store the 0L configs
+    InitConfig {
+        #[clap(flatten)]
+        profile_options: ProfileOptions,
+
+        /// Whether to skip the faucet for a non-faucet endpoint
+        #[clap(long)]
+        skip_faucet: bool,
+
+        /// Mutually exclusive with --private-key
+        #[clap(long, group = "private_key_input", parse(from_os_str))]
+        private_key_file: Option<PathBuf>,
+
+        /// Mutually exclusive with --private-key-file
+        #[clap(long, group = "private_key_input")]
+        private_key: Option<String>,
+    },
+
+    /// Generate keys and account address locally
     GenerateLocalAccount {
-        #[arg(
-            short,
-            long,
-            value_name = "PRIVATE_KEY",
-            help = "Generate account from the given private key"
-        )]
+        /// Generate account from the given private key
+        #[clap(short, long)]
         private_key: Option<String>,
 
-        #[arg(
-            short,
-            long,
-            value_name = "OUTPUT_DIR",
-            help = "Path of the directory to store yaml files"
-        )]
+        /// Path of the directory to store yaml files
+        #[clap(short, long)]
         output_dir: Option<String>,
     },
 
-    #[clap(about = "Create onchain account by using Aptos faucet")]
+    /// Create onchain account by using Aptos faucet
     CreateAccount {
-        #[arg(
-            short,
-            long,
-            value_name = "ACCOUNT_ADDRESS",
-            help = "Create onchain account with the given address"
-        )]
+        /// Create onchain account with the given address
+        #[clap(short, long)]
         account_address: String,
 
-        #[arg(
-            short,
-            long,
-            value_name = "COINS",
-            help = "The amount of coins to fund the new account"
-        )]
+        /// The amount of coins to fund the new account
+        #[clap(short, long)]
         coins: Option<u64>,
     },
 
-    #[clap(about = "Get account balance")]
+    /// Get account balance
     GetAccountBalance {
-        #[arg(
-            short,
-            long,
-            value_name = "ACCOUNT_ADDRESS",
-            help = "Address of the onchain account to get balance from"
-        )]
+        /// Address of the onchain account to get balance from
+        #[clap(short, long)]
         account_address: String,
     },
 
-    #[clap(about = "Get account resource")]
+    /// Get account resource
     GetAccountResource {
-        #[arg(
-            short,
-            long,
-            value_name = "ACCOUNT_ADDRESS",
-            help = "Address of the onchain account to get resource from"
-        )]
+        /// Address of the onchain account to get resource from
+        #[clap(short, long)]
         account_address: String,
 
-        #[arg(
-            short,
-            long,
-            value_name = "RESOURCE_TYPE",
-            help = "Type of the resource to get from account"
-        )]
+        /// Type of the resource to get from account
+        #[clap(short, long)]
         resource_type: Option<String>,
     },
 
-    #[clap(about = "Transfer coins between accounts")]
+    /// Transfer coins between accounts
     TransferCoins {
-        #[arg(short, long, value_name = "ADDR", help = "Address of the recipient")]
+        /// Address of the recipient
+        #[clap(short, long)]
         to_account: String,
 
-        #[arg(
-            short,
-            long,
-            value_name = "AMOUNT",
-            help = "The amount of coins to transfer"
-        )]
+        /// The amount of coins to transfer
+        #[clap(short, long)]
         amount: u64,
 
-        #[arg(
-            short,
-            long,
-            value_name = "PRIVATE_KEY",
-            help = "Private key of the account to withdraw money from"
-        )]
+        /// Private key of the account to withdraw money from
+        #[clap(short, long)]
         private_key: String,
 
-        #[arg(
-            short,
-            long,
-            value_name = "MAX_GAS",
-            help = "Maximum number of gas units to be used to send this transaction"
-        )]
+        /// Maximum number of gas units to be used to send this transaction
+        #[clap(short, long)]
         max_gas: Option<u64>,
 
-        #[arg(
-            short,
-            long,
-            value_name = "GAS_UNIT_PRICE",
-            help = "The amount of coins to pay for 1 gas unit. The higher the price is, the higher priority your transaction will be executed with"
-        )]
+        /// The amount of coins to pay for 1 gas unit. The higher the price is, the higher priority your transaction will be executed with
+        #[clap(short, long)]
         gas_unit_price: Option<u64>,
     },
 
-    #[clap(about = "Generate a transaction that executes an Entry function on-chain")]
+    /// Generate a transaction that executes an Entry function on-chain
     GenerateTransaction {
-        #[arg(
+        #[clap(
             short,
             long,
-            value_name = "FUNCTION_ID",
             help = indoc!{r#"
                 Function identifier has the form <ADDRESS>::<MODULE_ID>::<FUNCTION_NAME>
 
@@ -149,10 +124,9 @@ enum Subcommand {
         )]
         function_id: String,
 
-        #[arg(
+        #[clap(
             short,
             long,
-            value_name = "TYPE_ARGS",
             help = indoc!{ r#"
                 Type arguments separated by commas
 
@@ -163,10 +137,9 @@ enum Subcommand {
         )]
         type_args: Option<String>,
 
-        #[arg(
+        #[clap(
             short,
             long,
-            value_name = "ARGS",
             help = indoc!{ r#"
                 Function arguments separated by commas
 
@@ -176,44 +149,28 @@ enum Subcommand {
         )]
         args: Option<String>,
 
-        #[arg(
-            short,
-            long,
-            value_name = "MAX_GAS",
-            help = "Maximum amount of gas units to be used to send this transaction"
-        )]
+        /// Maximum amount of gas units to be used to send this transaction
+        #[clap(short, long)]
         max_gas: Option<u64>,
 
-        #[arg(
-            short,
-            long,
-            value_name = "GAS_UNIT_PRICE",
-            help = "The amount of coins to pay for 1 gas unit. The higher the price is, the higher priority your transaction will be executed with"
-        )]
+        /// The amount of coins to pay for 1 gas unit. The higher the price is, the higher priority your transaction will be executed with
+        #[clap(short, long)]
         gas_unit_price: Option<u64>,
 
-        #[arg(
-            short,
-            long,
-            value_name = "PRIVATE_KEY",
-            help = "Private key to sign the transaction"
-        )]
+        /// Private key to sign the transaction
+        #[clap(short, long)]
         private_key: String,
 
-        #[arg(
-            short,
-            long,
-            help = "Submit the generated transaction to the blockchain"
-        )]
+        /// Submit the generated transaction to the blockchain
+        #[clap(short, long)]
         submit: bool,
     },
 
-    #[clap(about = "Execute a View function on-chain")]
+    /// Execute a View function on-chain
     View {
-        #[arg(
+        #[clap(
             short,
             long,
-            value_name = "FUNCTION_ID",
             help = indoc!{r#"
                 Function identifier has the form <ADDRESS>::<MODULE_ID>::<FUNCTION_NAME>
 
@@ -223,10 +180,9 @@ enum Subcommand {
         )]
         function_id: String,
 
-        #[arg(
+        #[clap(
             short,
             long,
-            value_name = "TYPE_ARGS",
             help = indoc!{ r#"
                 Type arguments separated by commas
 
@@ -237,10 +193,9 @@ enum Subcommand {
         )]
         type_args: Option<String>,
 
-        #[arg(
+        #[clap(
             short,
             long,
-            value_name = "ARGS",
             help = indoc!{ r#"
                 Function arguments separated by commas
 
@@ -256,6 +211,20 @@ impl TxsCli {
     pub async fn run(&self) -> Result<()> {
         match &self.subcommand {
             Some(Subcommand::Demo) => demo::run().await,
+            Some(Subcommand::InitConfig {
+                profile_options,
+                skip_faucet,
+                private_key_file,
+                private_key,
+            }) => {
+                init_config::run(
+                    profile_options,
+                    *skip_faucet,
+                    private_key_file.to_owned(),
+                    private_key.to_owned(),
+                )
+                .await
+            }
             Some(Subcommand::GenerateLocalAccount {
                 private_key,
                 output_dir,

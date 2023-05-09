@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
 use home::home_dir;
-use rand::seq::SliceRandom;
 use serde::Deserialize;
 use std::{env, fs};
 
@@ -67,11 +66,7 @@ impl Toml {
         match &self.profile {
             Some(profile) => {
                 if let Some(upstream_nodes) = &profile.upstream_nodes {
-                    upstream_nodes
-                        .choose(&mut rand::thread_rng())
-                        .cloned()
-                        .unwrap_or_default()
-                    //TODO: make sure that the selected url is alive
+                    upstream_nodes.first().cloned().unwrap_or_default()
                 } else {
                     String::new()
                 }
