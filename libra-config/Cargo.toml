@@ -1,6 +1,6 @@
 [package]
 name = "libra-config"
-version = "0.0.1"
+version = "0.1.0"
 
 # Workspace inherited keys
 authors = { workspace = true }
@@ -10,7 +10,9 @@ license = { workspace = true }
 repository = { workspace = true }
 
 [dependencies]
-aptos = { workspace = true }
+libra = { workspace = true }
+txs = { workspace = true }
 anyhow = { workspace = true }
 clap = { workspace = true }
 tokio = { workspace = true }
+url = { workspace = true }

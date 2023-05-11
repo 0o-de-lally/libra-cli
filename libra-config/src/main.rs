@@ -4,6 +4,7 @@ use libra_config_cli::LibraConfigCli;
 
 mod libra_config_cli;
 
-fn main() -> Result<()> {
-    LibraConfigCli::parse().run()
+#[tokio::main]
+async fn main() -> Result<()> {
+    LibraConfigCli::parse().run().await
 }

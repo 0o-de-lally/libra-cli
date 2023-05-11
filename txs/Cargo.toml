@@ -1,6 +1,6 @@
 [package]
 name = "txs"
-version = "0.0.1"
+version = "0.1.0"
 
 # Workspace inherited keys
 authors = { workspace = true }
@@ -10,9 +10,8 @@ license = { workspace = true }
 repository = { workspace = true }
 
 [dependencies]
-aptos-sdk = { workspace = true }
+zapatos-sdk = { workspace = true }
 bcs = { workspace = true }
-libra-wallet = { workspace = true }
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 clap = { workspace = true }

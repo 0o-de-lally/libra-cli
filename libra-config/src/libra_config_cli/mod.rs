@@ -14,9 +14,9 @@ pub struct LibraConfigCli {
 enum Subcommand {
     /// Generate config.yaml file to store 0L configuration
     Init {
-        /// Signing Ed25519 private key
+        /// Ed25519 public key
         #[clap(long)]
-        private_key: Option<String>,
+        public_key: String,
 
         /// Profile to use from the CLI config
         ///
@@ -30,12 +30,12 @@ enum Subcommand {
 }
 
 impl LibraConfigCli {
-    pub fn run(&self) -> Result<()> {
+    pub async fn run(&self) -> Result<()> {
         match &self.subcommand {
             Some(Subcommand::Init {
-                private_key,
+                public_key,
                 profile,
-            }) => init::run(private_key.to_owned(), profile.to_owned()),
+            }) => init::run(public_key, profile.as_deref().to_owned()).await,
             _ => Ok(()),
         }
     }

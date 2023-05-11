@@ -2,12 +2,10 @@ use anyhow::Result;
 use clap::Parser;
 use colored::Colorize;
 use indoc::indoc;
-use std::path::PathBuf;
 use txs::util::format_signed_transaction;
 
 mod create_account;
 mod demo;
-mod generate_local_account;
 mod generate_transaction;
 mod get_account_balance;
 mod get_account_resource;
@@ -26,17 +24,6 @@ pub struct TxsCli {
 enum Subcommand {
     /// Demo transfer coin example for local testnet
     Demo,
-
-    /// Generate keys and account address locally
-    GenerateLocalAccount {
-        /// Generate account from the given private key
-        #[clap(short, long)]
-        private_key: Option<String>,
-
-        /// Path of the directory to store yaml files
-        #[clap(short, long)]
-        output_dir: Option<String>,
-    },
 
     /// Create onchain account by using Aptos faucet
     CreateAccount {
@@ -191,20 +178,6 @@ impl TxsCli {
     pub async fn run(&self) -> Result<()> {
         match &self.subcommand {
             Some(Subcommand::Demo) => demo::run().await,
-            Some(Subcommand::GenerateLocalAccount {
-                private_key,
-                output_dir,
-            }) => {
-                println!(
-                    "{}",
-                    generate_local_account::run(
-                        &private_key.clone().unwrap_or_default(),
-                        output_dir.as_ref().map(PathBuf::from)
-                    )
-                    .await?
-                );
-                Ok(())
-            }
             Some(Subcommand::CreateAccount {
                 account_address,
                 coins,

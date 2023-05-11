@@ -1,8 +1,8 @@
 use crate::config::Config;
-use aptos_sdk::rest_client::FaucetClient;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 use url::Url;
+use zapatos_sdk::rest_client::FaucetClient;
 
 pub trait FaucetClientExt {
     fn default() -> FaucetClient;

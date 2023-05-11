@@ -1,11 +1,11 @@
 use super::client_ext::ClientExt;
 use anyhow::Result;
-use aptos_sdk::{
+use async_trait::async_trait;
+use zapatos_sdk::{
     crypto::ed25519::Ed25519PrivateKey,
     rest_client::Client,
     types::{AccountKey, LocalAccount},
 };
-use async_trait::async_trait;
 
 #[async_trait]
 pub trait Ed25519PrivateKeyExt {
@@ -36,7 +36,7 @@ impl Ed25519PrivateKeyExt for Ed25519PrivateKey {
 #[cfg(test)]
 mod tests {
     use crate::extension::ed25519_private_key_ext::Ed25519PrivateKeyExt;
-    use aptos_sdk::crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt};
+    use zapatos_sdk::crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt};
 
     #[tokio::test]
     async fn create_local_account_from_private_key() {
