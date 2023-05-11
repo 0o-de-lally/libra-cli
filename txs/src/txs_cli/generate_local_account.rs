@@ -1,9 +1,11 @@
 use anyhow::{Context, Result};
-use aptos_sdk::crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt};
 use indoc::formatdoc;
 use libra_wallet::keys::validator_keygen;
 use std::path::PathBuf;
-use txs::extension::ed25519_private_key_ext::Ed25519PrivateKeyExt;
+use txs::{
+    crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt},
+    extension::ed25519_private_key_ext::Ed25519PrivateKeyExt,
+};
 
 pub async fn run(private_key: &str, output_dir: Option<PathBuf>) -> Result<String> {
     let private_key = if private_key.is_empty() {

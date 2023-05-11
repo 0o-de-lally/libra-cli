@@ -1,6 +1,7 @@
 use anyhow::Result;
-use aptos_sdk::{rest_client::Client, types::transaction::SignedTransaction};
-use txs::extension::client_ext::ClientExt;
+use txs::{
+    extension::client_ext::ClientExt, rest_client::Client, types::transaction::SignedTransaction,
+};
 
 pub async fn run(signed_trans: &SignedTransaction) -> Result<()> {
     let client = Client::default();

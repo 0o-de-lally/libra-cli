@@ -1,6 +1,7 @@
 use anyhow::Result;
-use aptos_sdk::{rest_client::Client, types::account_address::AccountAddress};
-use txs::extension::client_ext::ClientExt;
+use txs::{
+    extension::client_ext::ClientExt, rest_client::Client, types::account_address::AccountAddress,
+};
 
 pub async fn run(account_address: &str, resource_type: Option<String>) -> Result<String> {
     let client = Client::default();

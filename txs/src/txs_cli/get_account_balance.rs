@@ -1,8 +1,8 @@
 use anyhow::Result;
-use aptos_sdk::{
-    coin_client::CoinClient, rest_client::Client, types::account_address::AccountAddress,
+use txs::{
+    coin_client::CoinClient, extension::client_ext::ClientExt, rest_client::Client,
+    types::account_address::AccountAddress,
 };
-use txs::extension::client_ext::ClientExt;
 
 pub async fn run(account_address: &str) -> Result<String> {
     let client = Client::default();

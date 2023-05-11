@@ -1,6 +1,5 @@
 use anyhow::Result;
-use aptos_sdk::rest_client::Client;
-use txs::extension::client_ext::ClientExt;
+use txs::{extension::client_ext::ClientExt, rest_client::Client};
 
 pub async fn run(
     function_id: &str,
