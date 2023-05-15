@@ -10,8 +10,9 @@ license = { workspace = true }
 repository = { workspace = true }
 
 [dependencies]
-libra = { workspace = true }
-txs = { workspace = true }
+zapatos = { workspace = true }
+zapatos-rest-client = { workspace = true }
+zapatos-crypto = { workspace = true }
 anyhow = { workspace = true }
 clap = { workspace = true }
 tokio = { workspace = true }

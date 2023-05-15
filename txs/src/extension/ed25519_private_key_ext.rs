@@ -20,7 +20,7 @@ impl Ed25519PrivateKeyExt for Ed25519PrivateKey {
         let sequence_number = match sequence_number {
             Some(seq) => seq,
             None => {
-                let client = Client::default();
+                let client = Client::default()?;
                 client.get_sequence_number(account_address).await?
             }
         };

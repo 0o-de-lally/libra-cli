@@ -1,11 +1,13 @@
-use crate::config::Config;
+use anyhow::{Context, Result};
+use libra_config::extension::cli_config_ext::CliConfigExt;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 use url::Url;
+use zapatos::common::types::{CliConfig, ConfigSearchMode, DEFAULT_PROFILE};
 use zapatos_sdk::rest_client::FaucetClient;
 
 pub trait FaucetClientExt {
-    fn default() -> FaucetClient;
+    fn default() -> Result<FaucetClient>;
 }
 
 static FAUCET_URL: Lazy<Url> = Lazy::new(|| {
@@ -19,9 +21,17 @@ static FAUCET_URL: Lazy<Url> = Lazy::new(|| {
 });
 
 impl FaucetClientExt for FaucetClient {
-    fn default() -> FaucetClient {
-        let config = Config::default();
-        let node_url = Url::from_str(&config.node_url).unwrap();
-        FaucetClient::new(FAUCET_URL.clone(), node_url)
+    fn default() -> Result<FaucetClient> {
+        let profile = CliConfig::load_profile_ext(
+            Some(DEFAULT_PROFILE),
+            ConfigSearchMode::CurrentDirAndParents,
+        )
+        .context("Unable to locate 0l config file!")?
+        .unwrap_or_default();
+        let rest_url = profile.rest_url.context("Rest url is not set")?;
+        Ok(FaucetClient::new(
+            FAUCET_URL.clone(),
+            Url::from_str(&rest_url).unwrap(),
+        ))
     }
 }

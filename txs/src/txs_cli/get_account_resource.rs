@@ -4,7 +4,7 @@ use txs::{
 };
 
 pub async fn run(account_address: &str, resource_type: Option<String>) -> Result<String> {
-    let client = Client::default();
+    let client = Client::default()?;
     let account_address = AccountAddress::from_hex_literal(account_address)?;
 
     client

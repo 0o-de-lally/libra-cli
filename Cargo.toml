@@ -3,9 +3,8 @@ resolver = "2"
 
 members = [
     "txs",
-    "libra",
-    "libra-config",
     "libra-wallet",
+    "libra-config",
     "genesis-tools"
 ]
 
@@ -20,12 +19,12 @@ rust-version = "1.64"
 
 [workspace.dependencies]
 # Internal crate dependencies.
-libra = { path = "libra" }
 libra-wallet = { path = "libra-wallet" }
-txs = { path = "txs" }
+libra-config = { path = "libra-config" }
 
 # Zapatos dependencies
 zapatos = { package = "aptos", git = "https://github.com/0o-de-lally/zapatos.git", branch = "vendor" }
+zapatos-rest-client = { package = "aptos-rest-client", git = "https://github.com/0o-de-lally/zapatos.git", branch = "vendor" }
 zapatos-sdk = { package = "aptos-sdk", git = "https://github.com/0o-de-lally/zapatos.git", branch = "vendor" }
 zapatos-config = { package = "aptos-config", git = "https://github.com/0o-de-lally/zapatos.git", branch ="vendor" }
 zapatos-crypto = { package = "aptos-crypto", git = "https://github.com/0o-de-lally/zapatos.git", branch ="vendor"}
@@ -58,8 +57,6 @@ serde_json = "1.0.95"
 serde_yaml = "0.9.21"
 tokio = { version = "1.28.0", features = ["full"] }
 url = { version = "2.3.1", features = ["serde"] }
-toml_edit = { version = "0.19.8", features = ["serde"] }
-home = "0.5.4"
 hex = "0.4.3"
 indoc = "2.0.1"
 colored = "2.0.0"

@@ -8,9 +8,9 @@ use txs::{
 };
 
 pub async fn run() -> Result<()> {
-    let client = Client::default();
+    let client = Client::default()?;
     let coin_client = CoinClient::new(&client);
-    let faucet_client = FaucetClient::default();
+    let faucet_client = FaucetClient::default()?;
 
     // let mut alice = LocalAccount::generate(&mut rand::rngs::OsRng); // Aptos Alice
     // 0L Alice - from pri key

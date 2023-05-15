@@ -1,8 +1,11 @@
 use anyhow::{bail, Result};
-use libra::{
+use libra_config::extension::cli_config_ext::CliConfigExt;
+use std::{collections::BTreeMap, str::FromStr};
+use url::Url;
+use zapatos::{
     account::key_rotation::lookup_address,
     common::{
-        network::Network,
+        init::Network,
         types::{
             account_address_from_public_key, CliConfig, CliError, CliTypedResult, ConfigSearchMode,
             ProfileConfig, PromptOptions, DEFAULT_PROFILE,
@@ -10,17 +13,12 @@ use libra::{
         utils::{prompt_yes_with_override, read_line},
     },
 };
-use libra_config::extension::cli_config_ext::CliConfigExt;
-use std::{collections::BTreeMap, str::FromStr};
-use txs::{
-    crypto::{ed25519::Ed25519PublicKey, ValidCryptoMaterialStringExt},
-    rest_client::{
-        aptos_api_types::{AptosError, AptosErrorCode},
-        error::{AptosErrorResponse, RestError},
-        Client,
-    },
+use zapatos_crypto::{ed25519::Ed25519PublicKey, ValidCryptoMaterialStringExt};
+use zapatos_rest_client::{
+    aptos_api_types::{AptosError, AptosErrorCode},
+    error::{AptosErrorResponse, RestError},
+    Client,
 };
-use url::Url;
 
 pub async fn run(public_key: &str, profile: Option<&str>) -> Result<()> {
     let mut config = if CliConfig::config_exists_ext(ConfigSearchMode::CurrentDir) {

@@ -2,8 +2,11 @@ use anyhow::{Context, Result};
 use indoc::formatdoc;
 use libra_wallet::keys::validator_keygen;
 use std::path::PathBuf;
-use txs::extension::ed25519_private_key_ext::Ed25519PrivateKeyExt;
-use zapatos_crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt};
+use zapatos_crypto::{
+    ed25519::{Ed25519PrivateKey, Ed25519PublicKey},
+    ValidCryptoMaterialStringExt,
+};
+use zapatos_types::transaction::authenticator::AuthenticationKey;
 
 pub async fn run(private_key: &str, output_dir: Option<PathBuf>) -> Result<String> {
     let private_key = if private_key.is_empty() {
@@ -14,10 +17,9 @@ pub async fn run(private_key: &str, output_dir: Option<PathBuf>) -> Result<Strin
             .context(format!("Unable to decode the private key: {private_key}"))?
     };
 
-    let account = private_key.get_account(Some(0)).await?;
-    let private_key = hex::encode(account.private_key().to_bytes());
-    let public_key = account.public_key();
-    let authentication_key = account.authentication_key();
+    let public_key = Ed25519PublicKey::from(&private_key);
+    let authentication_key = AuthenticationKey::ed25519(&public_key);
+    let private_key = hex::encode(private_key.to_bytes());
     let account_address = authentication_key.derived_address().to_hex_literal();
 
     Ok(formatdoc!(

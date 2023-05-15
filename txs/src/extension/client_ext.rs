@@ -1,14 +1,20 @@
 use crate::{
-    config::Config,
+    constant::{DEFAULT_TIMEOUT_SECS, USER_AGENT},
     util::{format_args, format_type_args, parse_function_id},
 };
 use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
+use libra_config::extension::cli_config_ext::CliConfigExt;
 use std::{
     str::FromStr,
-    time::{SystemTime, UNIX_EPOCH},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use url::Url;
+use zapatos::common::types::{
+    CliConfig,
+    ConfigSearchMode::{self},
+    DEFAULT_PROFILE,
+};
 use zapatos_sdk::{
     move_types::{
         language_storage::{ModuleId, TypeTag},
@@ -30,7 +36,7 @@ use zapatos_sdk::{
 
 #[async_trait]
 pub trait ClientExt {
-    fn default() -> Client;
+    fn default() -> Result<Client>;
 
     async fn get_sequence_number(&self, account: AccountAddress) -> Result<u64>;
 
@@ -59,10 +65,16 @@ pub trait ClientExt {
 
 #[async_trait]
 impl ClientExt for Client {
-    fn default() -> Client {
-        let config = Config::default();
-        let node_url = Url::from_str(&config.node_url).unwrap();
-        Client::new(node_url)
+    fn default() -> Result<Client> {
+        let profile =
+            CliConfig::load_profile_ext(Some(DEFAULT_PROFILE), ConfigSearchMode::CurrentDir)?
+                .unwrap_or_default();
+        let rest_url = profile.rest_url.context("Rest url is not set")?;
+        Ok(Client::new_with_timeout_and_user_agent(
+            Url::from_str(&rest_url).unwrap(),
+            Duration::from_secs(DEFAULT_TIMEOUT_SECS),
+            USER_AGENT,
+        ))
     }
 
     async fn get_sequence_number(&self, account: AccountAddress) -> Result<u64> {

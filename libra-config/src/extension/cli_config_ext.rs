@@ -1,13 +1,16 @@
 use super::global_config_ext::GlobalConfigExt;
-use libra::{
+use anyhow::{anyhow, bail, Result};
+use std::path::PathBuf;
+use zapatos::{
     common::{
-        types::{CliConfig, CliError, CliTypedResult, ConfigSearchMode},
+        types::{
+            CliConfig, CliError, CliTypedResult, ConfigSearchMode, ProfileConfig, DEFAULT_PROFILE,
+        },
         utils::{create_dir_if_not_exist, read_from_file, write_to_user_only_file},
     },
     config::GlobalConfig,
     genesis::git::from_yaml,
 };
-use std::path::PathBuf;
 
 const CONFIG_FILE: &str = "config.yaml";
 const LEGACY_CONFIG_FILE: &str = "config.yml";
@@ -15,6 +18,10 @@ const LEGACY_CONFIG_FILE: &str = "config.yml";
 pub trait CliConfigExt {
     fn config_exists_ext(mode: ConfigSearchMode) -> bool;
     fn load_ext(mode: ConfigSearchMode) -> CliTypedResult<CliConfig>;
+    fn load_profile_ext(
+        profile: Option<&str>,
+        mode: ConfigSearchMode,
+    ) -> Result<Option<ProfileConfig>>;
     fn save_ext(&self) -> CliTypedResult<()>;
 }
 
@@ -50,6 +57,28 @@ impl CliConfigExt for CliConfig {
                 "{}",
                 config_file.display()
             )))
+        }
+    }
+
+    fn load_profile_ext(
+        profile: Option<&str>,
+        mode: ConfigSearchMode,
+    ) -> Result<Option<ProfileConfig>> {
+        let config = CliConfig::load_ext(mode);
+        if let Some(CliError::ConfigNotFoundError(path)) = config.as_ref().err() {
+            bail!("Unable to find config {path}, have you run `libra-config init`?");
+        }
+
+        let mut config = config?;
+        // If no profile was given, use `default`
+        if let Some(profile) = profile {
+            if let Some(account_profile) = config.remove_profile(profile) {
+                Ok(Some(account_profile))
+            } else {
+                Err(anyhow!("Profile {} not found", profile))
+            }
+        } else {
+            Ok(config.remove_profile(DEFAULT_PROFILE))
         }
     }
 

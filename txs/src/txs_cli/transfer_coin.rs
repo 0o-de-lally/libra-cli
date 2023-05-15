@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use txs::{
     coin_client::{CoinClient, TransferOptions},
-    config::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
+    constant::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
     crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt},
     extension::{client_ext::ClientExt, ed25519_private_key_ext::Ed25519PrivateKeyExt},
     rest_client::Client,
@@ -15,7 +15,7 @@ pub async fn run(
     max_gas: Option<u64>,
     gas_unit_price: Option<u64>,
 ) -> Result<()> {
-    let client = Client::default();
+    let client = Client::default()?;
     let coint_client = CoinClient::new(&client);
     let private_key = Ed25519PrivateKey::from_encoded_string(private_key)?;
     let mut from_account = private_key.get_account(None).await?;

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use txs::{
-    config::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
+    constant::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
     crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt},
     extension::{
         client_ext::{ClientExt, TransactionOptions},
@@ -18,7 +18,7 @@ pub async fn run(
     max_gas: Option<u64>,
     gas_unit_price: Option<u64>,
 ) -> Result<SignedTransaction> {
-    let client = Client::default();
+    let client = Client::default()?;
     let private_key = Ed25519PrivateKey::from_encoded_string(private_key)?;
     let mut account = private_key.get_account(None).await?;
     let options = TransactionOptions {

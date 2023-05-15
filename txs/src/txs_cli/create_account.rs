@@ -5,7 +5,7 @@ use txs::{
 };
 
 pub async fn run(account_address: &str, coins: u64) -> Result<()> {
-    let faucet_client = FaucetClient::default();
+    let faucet_client = FaucetClient::default()?;
     let account_address = AccountAddress::from_hex_literal(account_address)?;
 
     if coins == 0 {

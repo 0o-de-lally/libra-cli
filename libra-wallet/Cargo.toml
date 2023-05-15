@@ -20,7 +20,6 @@ serde_json = { workspace = true }
 anyhow = { workspace = true }
 serde = { workspace = true }
 blst = { workspace = true }
-txs = { workspace = true }
 zapatos-types = { workspace = true }
 zapatos-crypto = { workspace = true }
 zapatos-keygen = { workspace = true }

@@ -1,4 +1,5 @@
-use libra::{
+use std::path::PathBuf;
+use zapatos::{
     common::{
         types::{CliError, CliTypedResult, ConfigSearchMode},
         utils::{current_dir, read_from_file},
@@ -6,7 +7,6 @@ use libra::{
     config::{ConfigType, GlobalConfig},
     genesis::git::from_yaml,
 };
-use std::path::PathBuf;
 
 const CONFIG_FOLDER: &str = ".0L";
 const GLOBAL_CONFIG_FILE: &str = "global_config.yaml";
