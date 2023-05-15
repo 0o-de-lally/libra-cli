@@ -12,7 +12,7 @@ pub struct LibraConfigCli {
 
 #[derive(clap::Subcommand)]
 enum Subcommand {
-    /// Generate config.yaml file to store 0L configuration
+    /// Generate config.yaml file that stores 0L configuration
     Init {
         /// Ed25519 public key
         #[clap(long)]

@@ -10,6 +10,7 @@ use libra::{
         utils::{prompt_yes_with_override, read_line},
     },
 };
+use libra_config::extension::cli_config_ext::CliConfigExt;
 use std::{collections::BTreeMap, str::FromStr};
 use txs::{
     crypto::{ed25519::Ed25519PublicKey, ValidCryptoMaterialStringExt},
@@ -22,8 +23,8 @@ use txs::{
 use url::Url;
 
 pub async fn run(public_key: &str, profile: Option<&str>) -> Result<()> {
-    let mut config = if CliConfig::config_exists(ConfigSearchMode::CurrentDir) {
-        CliConfig::load(ConfigSearchMode::CurrentDir)?
+    let mut config = if CliConfig::config_exists_ext(ConfigSearchMode::CurrentDir) {
+        CliConfig::load_ext(ConfigSearchMode::CurrentDir)?
     } else {
         CliConfig::default()
     };
@@ -127,7 +128,7 @@ pub async fn run(public_key: &str, profile: Option<&str>) -> Result<()> {
         .as_mut()
         .expect("Must have profiles, as created above")
         .insert(profile_name.to_string(), profile_config);
-    config.save()?;
+    config.save_ext()?;
     eprintln!(
         "\n0L CLI is now set up for account {} as profile {}!",
         address,

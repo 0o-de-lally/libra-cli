@@ -15,3 +15,13 @@ pub mod account {
         pub use zapatos::account::key_rotation::*;
     }
 }
+
+pub mod config {
+    pub use zapatos::config::*;
+}
+
+pub mod genesis {
+    pub mod git {
+        pub use zapatos::genesis::git::*;
+    }
+}
