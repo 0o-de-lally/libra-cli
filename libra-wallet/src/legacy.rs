@@ -2,12 +2,12 @@
 
 use anyhow::Result;
 use diem_wallet::WalletLibrary;
-use hex::encode;
 use ol_keys::wallet::{get_account_from_mnem, keygen};
 use ol_keys::{scheme::KeyScheme, wallet::get_account_from_prompt};
 use serde::Serialize;
 use std::path::Path;
 use std::str::FromStr;
+use zapatos_crypto::ed25519::Ed25519PrivateKey;
 use zapatos_types::account_address::AccountAddress;
 use zapatos_types::transaction::authenticator::AuthenticationKey;
 
@@ -39,8 +39,8 @@ pub struct AccountKeys {
     pub account: AccountAddress,
     /// The authentication key derived from private key
     pub auth_key: AuthenticationKey,
-    /// The private key hex encoded
-    pub pri_key: String,
+    /// The private key
+    pub pri_key: Ed25519PrivateKey,
 }
 
 /// Legacy Keygen. These note these keys are not sufficient to create a validator from V7 onwards. Besides the Mnemonic the keypair for 0th derivation (owner key) is reusable.
@@ -79,7 +79,7 @@ fn get_account_from_private_key(w: &WalletLibrary, n: u8) -> Result<AccountKeys>
     Ok(AccountKeys {
         account: AccountAddress::from_hex_literal(&account.to_hex_literal())?,
         auth_key: AuthenticationKey::from_str(&auth_key.to_string())?,
-        pri_key: encode(key.get_private_key().to_bytes()),
+        pri_key: Ed25519PrivateKey::try_from(key.get_private_key().to_bytes().as_ref())?,
     })
 }
 
@@ -121,7 +121,9 @@ fn test_legacy_keys() {
             == "000000000000000000000000000000004c613c2f4b1e67ca8d98a542ee3f59f5"
     );
 
-    assert!("2570472a9a08b9cc1f7c616e9ebb1dc534db452d3a3d3c567e58bec9f0fbd13e" == &encode(&l.seed));
+    assert!(
+        "2570472a9a08b9cc1f7c616e9ebb1dc534db452d3a3d3c567e58bec9f0fbd13e" == &hex::encode(&l.seed)
+    );
 }
 
 #[test]
@@ -140,9 +142,7 @@ fn type_conversion_give_same_auth_and_address() {
     use zapatos_config::keys::ConfigKey;
     use zapatos_crypto::ed25519::Ed25519PrivateKey;
 
-    let cfg_key: ConfigKey<Ed25519PrivateKey> =
-        ConfigKey::from_encoded_string(&l.child_0_owner.pri_key).unwrap();
-
+    let cfg_key: ConfigKey<Ed25519PrivateKey> = ConfigKey::new(l.child_0_owner.pri_key);
     let auth_key_from_cfg = AuthenticationKey::ed25519(&cfg_key.public_key()).derived_address();
     assert!(auth_key_from_cfg.to_string() == l.child_0_owner.auth_key.to_string());
 }

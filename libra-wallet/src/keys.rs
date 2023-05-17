@@ -59,7 +59,6 @@ pub fn validator_keygen(
     Ok((validator_blob, vfn_blob, private_identity, public_identity))
 }
 
-
 /// A user with their mnemonic may want to refresh and overwrite files.
 pub fn refresh_validator_files(
     output_opt: Option<PathBuf>,
@@ -115,16 +114,16 @@ pub fn generate_key_objects_from_legacy(
 ) -> anyhow::Result<(IdentityBlob, IdentityBlob, PrivateIdentity, PublicIdentity)> {
     // let account_key = ConfigKey::new(keygen.generate_ed25519_private_key());
     let account_key: ConfigKey<Ed25519PrivateKey> =
-        ConfigKey::from_encoded_string(&legacy_keys.child_0_owner.pri_key)?;
+        ConfigKey::new(legacy_keys.child_0_owner.pri_key);
 
     // consensus key needs to be generated anew as it is not part of the legacy keys
     // let keygen = KeyGen::from_os_rng();
     let consensus_key = ConfigKey::new(bls_generate_key(&legacy_keys.seed)?);
 
-    let vnk = network_keys_x25519_from_ed25519(&legacy_keys.child_2_val_network.pri_key)?;
+    let vnk = network_keys_x25519_from_ed25519(legacy_keys.child_2_val_network.pri_key)?;
     let validator_network_key = ConfigKey::new(vnk);
 
-    let fnk = network_keys_x25519_from_ed25519(&legacy_keys.child_3_fullnode_network.pri_key)?;
+    let fnk = network_keys_x25519_from_ed25519(legacy_keys.child_3_fullnode_network.pri_key)?;
 
     let full_node_network_key = ConfigKey::new(fnk);
 
@@ -180,8 +179,10 @@ fn bls_generate_key(ikm: &[u8]) -> anyhow::Result<bls12381::PrivateKey> {
 }
 
 /// get a network key in x25519 format from a ed25519 key
-pub fn network_keys_x25519_from_ed25519(pri_key_str: &str) -> anyhow::Result<x25519::PrivateKey> {
-    let pri_key_bytes = hex::decode(pri_key_str)?;
+pub fn network_keys_x25519_from_ed25519(
+    pri_key: Ed25519PrivateKey,
+) -> anyhow::Result<x25519::PrivateKey> {
+    let pri_key_bytes = pri_key.to_bytes();
     let key = x25519::PrivateKey::from_ed25519_private_bytes(&pri_key_bytes)?;
     Ok(key)
 }
