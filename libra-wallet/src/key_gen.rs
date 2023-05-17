@@ -1,20 +1,23 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use indoc::formatdoc;
 use libra_wallet::keys::validator_keygen;
+use ol_keys::wallet::get_account_from_mnem;
 use std::path::PathBuf;
-use zapatos_crypto::{
-    ed25519::{Ed25519PrivateKey, Ed25519PublicKey},
-    ValidCryptoMaterialStringExt,
-};
+use zapatos_crypto::ed25519::{Ed25519PrivateKey, Ed25519PublicKey};
 use zapatos_types::transaction::authenticator::AuthenticationKey;
 
-pub async fn run(private_key: &str, output_dir: Option<PathBuf>) -> Result<String> {
-    let private_key = if private_key.is_empty() {
+pub async fn run(mnemonic: Option<String>, output_dir: Option<PathBuf>) -> Result<String> {
+    let private_key = if let Some(mnemonic) = mnemonic {
+        let (_, account_address, wallet_lib) = get_account_from_mnem(mnemonic)?;
+        Ed25519PrivateKey::try_from(
+            wallet_lib
+                .get_private_key(&account_address)?
+                .to_bytes()
+                .as_ref(),
+        )?
+    } else {
         let (_, _, private_identity, _) = validator_keygen(output_dir)?;
         private_identity.account_private_key
-    } else {
-        Ed25519PrivateKey::from_encoded_string(private_key)
-            .context(format!("Unable to decode the private key: {private_key}"))?
     };
 
     let public_key = Ed25519PublicKey::from(&private_key);

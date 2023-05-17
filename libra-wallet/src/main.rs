@@ -19,9 +19,9 @@ struct Entry {
 enum Commands {
     /// Generate keys and account address locally
     Keygen {
-        /// Generate account from the given private key
+        /// Recover account from the given mnemonic
         #[clap(short, long)]
-        private_key: Option<String>,
+        mnemonic: Option<String>,
 
         /// Path of the directory to store yaml files
         #[clap(short, long)]
@@ -72,16 +72,12 @@ async fn main() -> Result<()> {
             }
         }
         Commands::Keygen {
-            private_key,
+            mnemonic,
             output_dir,
         } => {
             println!(
                 "{}",
-                key_gen::run(
-                    private_key.as_deref().unwrap_or_default(),
-                    output_dir.as_ref().map(PathBuf::from)
-                )
-                .await?
+                key_gen::run(mnemonic.to_owned(), output_dir.as_ref().map(PathBuf::from)).await?
             );
         }
     }
