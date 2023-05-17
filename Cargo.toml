@@ -14,7 +14,7 @@ edition = "2021"
 homepage = "https://0l.network/"
 license = "Apache-2.0"
 publish = false
-repository = "https://github.com/EastAgile/0l-txs"
+repository = "https://github.com/EastAgile/libra-cli"
 rust-version = "1.64"
 
 [workspace.dependencies]
