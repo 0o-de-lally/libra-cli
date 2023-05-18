@@ -1,10 +1,10 @@
+use super::cli_config_ext::CliConfigExt;
 use anyhow::{Context, Result};
-use libra_config::extension::cli_config_ext::CliConfigExt;
-use once_cell::sync::Lazy;
 use std::str::FromStr;
 use url::Url;
 use zapatos::common::types::{CliConfig, ConfigSearchMode, DEFAULT_PROFILE};
-use zapatos_sdk::rest_client::FaucetClient;
+use zapatos_crypto::_once_cell::sync::Lazy;
+use zapatos_rest_client::FaucetClient;
 
 pub trait FaucetClientExt {
     fn default() -> Result<FaucetClient>;

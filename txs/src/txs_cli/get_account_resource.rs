@@ -1,4 +1,5 @@
 use anyhow::Result;
+use libra_config::extension::client_ext::ClientExt as ConfigClientExt;
 use txs::{
     extension::client_ext::ClientExt, rest_client::Client, types::account_address::AccountAddress,
 };

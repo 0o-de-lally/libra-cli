@@ -1,8 +1,6 @@
 use anyhow::{Context, Result};
-use txs::{
-    extension::faucet_client_ext::FaucetClientExt, rest_client::FaucetClient,
-    types::account_address::AccountAddress,
-};
+use libra_config::extension::faucet_client_ext::FaucetClientExt;
+use txs::{rest_client::FaucetClient, types::account_address::AccountAddress};
 
 pub async fn run(account_address: &str, coins: u64) -> Result<()> {
     let faucet_client = FaucetClient::default()?;

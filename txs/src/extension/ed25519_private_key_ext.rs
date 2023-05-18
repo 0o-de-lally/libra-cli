@@ -1,6 +1,7 @@
 use super::client_ext::ClientExt;
 use anyhow::Result;
 use async_trait::async_trait;
+use libra_config::extension::client_ext::ClientExt as ConfigClientExt;
 use zapatos_sdk::{
     crypto::ed25519::Ed25519PrivateKey,
     rest_client::Client,

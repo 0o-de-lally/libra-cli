@@ -1,6 +1,7 @@
 use anyhow::Result;
+use libra_config::extension::client_ext::{ClientExt as ConfigClientExt, DEFAULT_TIMEOUT_SECS};
 use txs::{
-    constant::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT, DEFAULT_TIMEOUT_SECS},
+    constant::{DEFAULT_GAS_UNIT_PRICE, DEFAULT_MAX_GAS_AMOUNT},
     crypto::{ed25519::Ed25519PrivateKey, ValidCryptoMaterialStringExt},
     extension::{
         client_ext::{ClientExt, TransactionOptions},

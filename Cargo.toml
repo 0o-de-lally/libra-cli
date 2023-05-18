@@ -3,6 +3,7 @@ resolver = "2"
 
 members = [
     "txs",
+    "query",
     "libra-wallet",
     "libra-config",
     "genesis-tools"

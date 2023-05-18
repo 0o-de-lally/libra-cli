@@ -7,7 +7,6 @@ use txs::util::format_signed_transaction;
 mod create_account;
 mod demo;
 mod generate_transaction;
-mod get_account_balance;
 mod get_account_resource;
 mod submit_transaction;
 mod transfer_coin;
@@ -34,13 +33,6 @@ enum Subcommand {
         /// The amount of coins to fund the new account
         #[clap(short, long)]
         coins: Option<u64>,
-    },
-
-    /// Get account balance
-    GetAccountBalance {
-        /// Address of the onchain account to get balance from
-        #[clap(short, long)]
-        account_address: String,
     },
 
     /// Get account resource
@@ -182,10 +174,6 @@ impl TxsCli {
                 account_address,
                 coins,
             }) => create_account::run(account_address, coins.unwrap_or_default()).await,
-            Some(Subcommand::GetAccountBalance { account_address }) => {
-                println!("{}", get_account_balance::run(account_address).await?);
-                Ok(())
-            }
             Some(Subcommand::GetAccountResource {
                 account_address,
                 resource_type,
