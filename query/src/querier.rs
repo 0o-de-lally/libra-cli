@@ -1,3 +1,4 @@
+use crate::extension::client_ext::ClientExt;
 use anyhow::Result;
 use zapatos_sdk::{
     coin_client::CoinClient, rest_client::Client, types::account_address::AccountAddress,
@@ -80,7 +81,11 @@ impl Querier {
                 let coin_client = CoinClient::new(&self.client);
                 coin_client.get_account_balance(&account).await?.to_string()
             }
-            _ => String::new(),
+            Resources { account } => self.client.get_account_resources_ext(account).await?,
+            _ => {
+                //TODO: Implement other types of Query
+                String::new()
+            }
         };
         Ok(print)
     }

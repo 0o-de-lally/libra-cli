@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 use libra_config::extension::client_ext::ClientExt;
-use query::querier::{Querier, QueryType::Balance};
+use query::querier::{Querier, QueryType::*};
 use zapatos_sdk::{rest_client::Client, types::account_address::AccountAddress};
 
 #[derive(Parser)]
@@ -19,6 +19,13 @@ enum Subcommand {
         #[clap(short, long)]
         account_address: String,
     },
+
+    /// Get all resources of an account
+    AccountResources {
+        /// Address of the onchain account to get resources from
+        #[clap(short, long)]
+        account_address: String,
+    },
 }
 
 impl QueryCli {
@@ -31,9 +38,14 @@ impl QueryCli {
                 let account = AccountAddress::from_hex_literal(account_address)?;
                 let balance = querier.query(Balance { account }).await?;
                 println!("Account balance: {balance} coins");
-                Ok(())
             }
-            _ => Ok(()),
+            Some(Subcommand::AccountResources { account_address }) => {
+                let account = AccountAddress::from_hex_literal(account_address)?;
+                let resources = querier.query(Resources { account }).await?;
+                println!("{resources}");
+            }
+            _ => { /* do nothing */ }
         }
+        Ok(())
     }
 }

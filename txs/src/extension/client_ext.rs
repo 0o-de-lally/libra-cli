@@ -26,12 +26,6 @@ use zapatos_sdk::{
 pub trait ClientExt {
     async fn get_sequence_number(&self, account: AccountAddress) -> Result<u64>;
 
-    async fn get_account_resource_ext(
-        &self,
-        account: AccountAddress,
-        resource_type: Option<String>,
-    ) -> Result<String>;
-
     async fn generate_transaction(
         &self,
         from_account: &mut LocalAccount,
@@ -60,25 +54,6 @@ impl ClientExt for Client {
             Ok(serde_json::from_value::<Account>(res.data.to_owned())?.sequence_number)
         } else {
             Err(anyhow!("No data returned for the sequence number"))
-        }
-    }
-
-    async fn get_account_resource_ext(
-        &self,
-        account: AccountAddress,
-        resource_type: Option<String>,
-    ) -> Result<String> {
-        let response = self
-            .get_account_resource(
-                account,
-                resource_type.as_deref().unwrap_or("0x1::account::Account"),
-            )
-            .await
-            .context("Failed to get account resource")?;
-        if let Some(res) = response.inner() {
-            Ok(format!("{:#}", res.data))
-        } else {
-            Err(anyhow!("No data returned for the account resource"))
         }
     }
 
